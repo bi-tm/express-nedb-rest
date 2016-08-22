@@ -1,0 +1,34 @@
+{
+  "name": "express-nedb-rest",
+  "version": "1.0.0",
+  "description": "REST api for nedb database implemented in nodejs, based on express http server",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "jison": "^0.4.17",
+    "nedb": "^1.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test.js",
+    "start": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bi-tm/express-nedb-api.git"
+  },
+  "keywords": [
+    "nedb",
+    "express",
+    "rest",
+    "api",
+    "nodejs"
+  ],
+  "author": "Torsten Manhardt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bi-tm/express-nedb-api/issues"
+  },
+  "homepage": "https://github.com/bi-tm/express-nedb-api#readme"
+}

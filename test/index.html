@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <style type="text/css">
+            * {
+                font-family: "Lucida Console", Monaco, monospace;
+                font-size: 14px;
+            }
+            label {
+                width: 12ex;
+                display: inline-block;
+                font-size: 0.8em;
+                vertical-align: top;
+                margin-bottom: 0.8em;
+            }
+            input {
+                display: inline-block;
+                vertical-align: top;
+                margin-bottom: 0.8em;
+            }
+            fieldset {
+                width: 100ex;
+                min-width: 100ex;
+            }
+        </style>
+        <script type="text/javascript">
+            function rest(form) {
+                form.response.value = "";
+                form.status.value = "";
+                form.status.style.background = "";
+                document.images['busy'].style.visibility = "visible";
+                var verb = form.verb.options[form.verb.selectedIndex].value;
+                var r = new XMLHttpRequest();
+                r.open(verb, form.url.value, true);
+                r.onreadystatechange = function () {
+                    document.images['busy'].style.visibility = "hidden";
+                    form.status.value = r.status;
+                    if (r.readyState == 4) {
+                        form.response.value = r.responseText;
+                        if (r.status >= 200 && r.status <=299) {
+                            form.status.style.background = "green";
+                        }
+                        else {
+                            form.status.style.background = "red";
+                        }
+                    }
+                };
+                r.setRequestHeader("Content-type", "application/json");
+                r.send(form.request.value);
+                                
+                return false;
+            }
+            
+            function sample(verb, url, data) {
+                var form = document.forms[0];
+                form.verb.value = verb;
+                form.url.value = url || "";
+                form.request.value = data ? JSON.stringify(data) : "";
+            }
+        </script>
+    </head>
+    
+    <body>
+        <h2>express-nedb-rest</h2>
+        <form onsubmit="javascript:return rest(this)">
+            <fieldset>
+                <legend>Request</legend>
+                <label for="url">URL</label>
+                <input id="url" size="50">
+                <select id="verb" size="1">
+                  <option selected>GET</option>
+                  <option>POST</option>
+                  <option>PUT</option>
+                  <option>DELETE</option>
+                </select>
+                <button type = "submit">execute</button>
+                <br>
+                <label for="request">JSON Data</label>
+                <textarea id="request" cols=80 rows=10></textarea>
+            </fieldset>
+            <fieldset>
+                <legend>Response</legend>
+                <label for="status">Status</label>
+                <input id="status" readonly style="color: white;"/>
+                <img src="/spin.gif" id="busy" style="visibility:hidden;"></img>
+                <br/>
+                <label for="repsonse">Repsonse</label>
+                <textarea id="response" cols=80 rows=10 readonly></textarea>
+            </fieldset>
+            <fieldset>
+                <legend>Samples</legend>
+                <ol>
+                <li><a href="javascript:sample('GET', '/fruits')">read fruit collection (GET /fruits)</a></li>
+                <li><a href="javascript:sample('PUSH', '/fruits', {'name':'apple'})">add an apple (PUSH /fruits)</a></li>
+                </ol>
+            </fieldset>
+        </form>
+    </body>
+</html>
