@@ -23,7 +23,7 @@ var port = process.env.PORT || 8000;
 
 // start express server
 oApp.listen(port, function () {
-    var server = 'localhost:'+port;
+    var server = 'localhost';
     if (process.env.C9_HOSTNAME) {
         // alternative text, if running behind Cloud9 proxy
         var server = process.env.C9_HOSTNAME;
