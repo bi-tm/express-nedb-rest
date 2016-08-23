@@ -1,7 +1,7 @@
 var http = require('http');
 var express = require('express');
 var nedb = require('nedb');
-var expressNedbRest = require('express-nedb-rest');
+var expressNedbRest = require('../index.js');
 
 // setup express app
 var oApp = express();
