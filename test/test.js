@@ -1,4 +1,3 @@
-var http = require('http');
 var express = require('express');
 var nedb = require('nedb');
 var expressNedbRest = require('../index.js');

@@ -1,4 +1,6 @@
-{"name":"apple","_id":"VLrvSmoTnjFxfjzc"}
-{"name":"apple","_id":"5VmQ9GouzH4wurUO"}
-{"$$deleted":true,"_id":"5VmQ9GouzH4wurUO"}
-{"$$deleted":true,"_id":"VLrvSmoTnjFxfjzc"}
+{"name":"strawberry","color":"red","_id":"J1t1kMDp4PWgPfhf"}
+{"name":"banana","color":"yellow","_id":"K1MclG89adH0IMs9"}
+{"name":"apple","color":"red","_id":"ha2HXVubOeoDscSf"}
+{"name":"melone","color":"green","_id":"khayMJGa9jXg6Rez"}
+{"name":"cherry","color":"red","_id":"ow8vqh46B2Oekb4U"}
+{"name":"apple","color":"green","_id":"xdQXw3jM3lCI24dI"}

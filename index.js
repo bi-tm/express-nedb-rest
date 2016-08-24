@@ -101,21 +101,36 @@ function addRestMethods(router) {
 
     //--------------------------------------------------------------------------
     router.get('/:collection', function (req, res, next) {
-        var query = req.nedb.find(req.$filter);
-        var $order = order(req.query.$orderby);
-        if ($order) query.sort($order);
-        if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
-        if (!isNaN(req.query.$limit)) query.limit(parseInt(req.query.$limit));
-        query.exec(function(err, docs) {
-            if (err) {
-                return next(err);
-            }
-            else {
-                res.append('X-Total-Count', docs.length);
-                res.locals.json = docs;
-                next();
-            }
-        });
+        
+        if (typeof(req.query.$count) == "undefined") {
+            var query = req.nedb.find(req.$filter);
+            var $order = order(req.query.$orderby);
+            if ($order) query.sort($order);
+            if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
+            if (!isNaN(req.query.$limit)) query.limit(parseInt(req.query.$limit));
+            query.exec(function(err, docs) {
+                if (err) {
+                    return next(err);
+                }
+                else {
+                    res.append('X-Total-Count', docs.length);
+                    res.locals.json = docs;
+                    next();
+                }
+            });
+        }
+        else {
+            req.nedb.count(req.$filter, function(err, count) {
+                if (err) {
+                    return next(err);
+                }
+                else {
+                    res.append('X-Total-Count', count);
+                    res.status(200).send(count.toString());
+                    next();
+                }
+            });
+        }
     });
 
     //--------------------------------------------------------------------------
