@@ -15,8 +15,9 @@ It enables client sided javascript components to access database content via HTT
 This can be used i.e. for HTML5 applications.
 
 ## Installation
-You can download the source from [Github](https://github.com/bi-tm/express-nedb-rest) or install it npm:
+You can download the source from [Github](https://github.com/bi-tm/express-nedb-rest) or install it (soon) with npm:
 
+** npm module not ready yet ! **
 ```
 npm install express-nedb-rest
 ```
@@ -78,11 +79,10 @@ There you can send AJAX calls to nedb rest api to test CRUD operations.
 | /:collection     | DELETE | Remove multiple documents (uses query parameter $filter) |
 
 ## Query parameter $filter
-*To Do*
+*description missing...*
 
 ## Query parameter $orderby
-*To Do*
+*description missing...*
 
 ## Query parameter $count
-*To Do*
-
+*description missing...*
