@@ -160,7 +160,7 @@ function addRestMethods(router) {
                 res.status(404) // Not Found
             }
             else {
-                res.status(204).send(); // No Content
+                res.status(204).send("deleted entries: "+count); 
             }
         })
     });
@@ -168,15 +168,18 @@ function addRestMethods(router) {
 
     //--------------------------------------------------------------------------
     router.delete('/:collection', function (req, res, next) {
+        if (!req.$filter || Object.keys(req.$filter).length == 0) {
+            res.status(405).send(); // Method Not Allowed
+        }
         req.nedb.remove(req.$filter, { multi: true }, function (err, count) {
             if (err) {
                 return next(err);
             }
-            if (count != 1) {
+            if (count == 0) {
                 res.status(404) // Not Found
             }
             else {
-                res.status(204).send(); // No Content
+                res.status(204).send("deleted entries: "+count);
             }
         })
     });

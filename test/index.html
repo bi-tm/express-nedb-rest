@@ -3,10 +3,10 @@
         <style type="text/css">
             * {
                 font-family: "Lucida Console", Monaco, monospace;
-                font-size: 14px;
+                font-size: 12px;
             }
             label {
-                width: 12ex;
+                width: 16ex;
                 display: inline-block;
                 font-size: 0.8em;
                 vertical-align: top;
@@ -62,11 +62,11 @@
     </head>
     
     <body>
-        <h2>express-nedb-rest</h2>
+        <h2><a href="https://github.com/bi-tm/express-nedb-rest">express-nedb-rest</a></h2>
         <form onsubmit="javascript:return rest(this)">
             <fieldset>
                 <legend>Request</legend>
-                <label for="url">URL</label>
+                <label for="url">URL /rest/...</label>
                 <input id="url" size="50">
                 <select id="verb" size="1">
                   <option selected>GET</option>
@@ -91,9 +91,10 @@
             <fieldset>
                 <legend>Samples</legend>
                 <ol>
-                <li><a href="javascript:sample('GET', '/')">list of collections (GET /)</a></li>
-                <li><a href="javascript:sample('GET', '/fruits')">read fruit collection (GET /fruits)</a></li>
-                <li><a href="javascript:sample('POST', '/fruits', {'name':'apple'})">add an apple (POST /fruits)</a></li>
+                <li><a href="javascript:sample('GET', '')">list of collections (GET /)</a></li>
+                <li><a href="javascript:sample('GET', 'fruits')">read fruit collection (GET /fruits)</a></li>
+                <li><a href="javascript:sample('DELETE', 'fruits?$filter=name $eq \'apple\'')">delete all apples (DELETE /fruits?$filter=...)</a></li>
+                <li><a href="javascript:sample('POST', 'fruits', {'name':'apple'})">add a new apple (POST /fruits)</a></li>
                 </ol>
             </fieldset>
         </form>
