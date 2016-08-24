@@ -11,11 +11,13 @@ var oApp = express();
 oApp.use('/index.html', express.static('index.html'));
 oApp.use('/spin.gif', express.static('spin.gif'));
 
-// connect /nedb path to REST server
-var restApi = expressNedbRest({
-    datapath:__dirname,
-    collections: ['fruits','animals']
-});
+
+// create REST service and NEDB datastores
+var restApi = expressNedbRest();
+restApi.addDatastore('fruits',  new nedb({ filename: "fruits.db",  autoload: true }));
+restApi.addDatastore('animals', new nedb({ filename: "animals.db", autoload: true }));
+
+// connect /rest path to REST service
 oApp.use('/rest', restApi);
 
 // setup port

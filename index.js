@@ -4,32 +4,45 @@ var nedb = require('nedb');
 var filter = require('./filter');
 var order = require('./order');
 
-module.exports = function expressNedbRest(cfg) {
+function expressNedbRest() {
     var router = express.Router();
 
-    // merge default values into config object
-    router.cfg = defaultConfig(cfg);
-    
-    // initialization of nedb
-    initNetdb(router.cfg);    
+    // initialize configuration object (no collections yet)
+    router.cfg = { collections:[] };
 
-//    if (!db) throw new TypeError('db required')
-
-    // parse body data of request
+    // parse body of request
     router.use(bodyParser.json());
     
-    // add options to each request 
+    // add configuration to each request 
     router.use(function (req, res, next) {
         req.cfg = router.cfg;
         next();
     });
 
     // call validator function, if configured
-    if (typeof(router.cfg.validator) == "function") {
+    if (router.cfg.validator) {
         router.use(router.cfg.validator);
     }
 
-    // regiuster methods for GET, POST, ...
+    // find datastore of collection and add it to request object
+    router.param('collection', function collectionParam(req, res, next, collection) {
+        req.collection = collection;
+        req.nedb = req.cfg.collections[collection];
+        if (!req.nedb) {
+            throw { status: 404, 
+                    message: "unknown collection " + req.collection }; // Bad Request
+        }
+        req.$filter = filter(req.query.$filter);
+        next();
+    });
+
+    // add object id from uri to request 
+    router.param('id', function (req, res, next, id) {
+        req.id = id;
+        next();
+    });
+
+    // register methods for GET, POST, ...
     addRestMethods(router);
 
     // send json result at last
@@ -47,74 +60,42 @@ module.exports = function expressNedbRest(cfg) {
         }        
     });
 
+    // declare method to add datastore
+    router.addDatastore = function(collection, store) {
+        this.cfg.collections[collection] = store;
+    };
+
+    // declare method to set validator callback function
+    router.setValidator = function(f) {
+        if (typeof(f) == "function") {
+            this.cfg.validator = f;
+        }
+        else {
+            this.cfg.validator = null;
+        }
+    };
+
+    // return router
     return router;
 };
 
-/**
- * add config object with default entries
- */
-function defaultConfig(cfg) {
-    cfg = cfg || {};
-    cfg.datapath = cfg.datapath || ".";
-    cfg.collections = cfg.collections || [];
-    cfg.datastores = cfg.datastores || [];
-    return cfg;
-}
-
-/**
- * create nedb instance for each collection
- */
-function initNetdb(cfg) {
-    if (Array.isArray(cfg.collections)) {
-        cfg.collections.forEach(function(collection) {
-            var ds =  new nedb({
-                filename: cfg.datapath+'/'+collection+".db",
-                inMemoryOnly: false,
-                autoload: true  
-            });
-            cfg.datastores[collection] = ds;
-        });
-    }
-}
-
-/**
- * get nedb datastore for a coĺlection, or null if not defined
- */ 
-function getDatastore(cfg, collection) {
-    var ds = cfg.datastores[collection];
-    if (typeof(ds) == "undefined") {
-        ds = null;
-    }
-    return ds;
-}
 
 function fullUrl(req) {
     return req.protocol + '://' + req.get('host') + req.originalUrl
 }
 
-
 function addRestMethods(router) {
     
-    router.param('collection', function collectionParam(req, res, next, collection) {
-        req.collection = collection;
-        req.nedb = getDatastore(req.cfg, collection);
-        if (!req.nedb) {
-            throw { status: 404, 
-                    message: "unknown collection " + req.collection }; // Bad Request
-        }
-        req.$filter = filter(req.query.$filter);
-        next();
-    });
-
-    router.param('id', function (req, res, next, id) {
-        req.id = id;
-        next();
-    });
-
     //--------------------------------------------------------------------------
     router.get('/', function (req, res, next) {
-        res.append('X-Total-Count', req.cfg.collections.length);
-        res.locals.json = req.cfg.collections;
+        res.locals.json = [];
+        for(var name in req.cfg.collections) {
+            res.locals.json.push({
+                "name": name, 
+                "link": fullUrl(req) + name
+            });    
+        }
+        res.append('X-Total-Count', res.locals.json.length);
         next();
     });
 
@@ -255,3 +236,5 @@ function addRestMethods(router) {
     
 }
 
+
+module.exports = expressNedbRest;

@@ -28,7 +28,7 @@
                 form.status.value = "";
                 form.status.style.background = "";
                 document.images['busy'].style.visibility = "visible";
-                var verb = form.verb.options[form.verb.selectedIndex].value;
+                var verb = form.verb.value; // form.verb.options[form.verb.selectedIndex].value;
                 var r = new XMLHttpRequest();
                 var uri = encodeURI('/rest/' + form.url.value);
                 r.open(verb, uri, true);
@@ -56,6 +56,7 @@
                 form.verb.value = verb;
                 form.url.value = url || "";
                 form.request.value = data ? JSON.stringify(data) : "";
+                rest(form);
             }
         </script>
     </head>
@@ -90,8 +91,9 @@
             <fieldset>
                 <legend>Samples</legend>
                 <ol>
+                <li><a href="javascript:sample('GET', '/')">list of collections (GET /)</a></li>
                 <li><a href="javascript:sample('GET', '/fruits')">read fruit collection (GET /fruits)</a></li>
-                <li><a href="javascript:sample('PUSH', '/fruits', {'name':'apple'})">add an apple (PUSH /fruits)</a></li>
+                <li><a href="javascript:sample('POST', '/fruits', {'name':'apple'})">add an apple (POST /fruits)</a></li>
                 </ol>
             </fieldset>
         </form>
