@@ -93,8 +93,10 @@
                 <ol>
                 <li><a href="javascript:sample('GET', '')">list of collections (GET /)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits')">read fruit collection (GET /fruits)</a></li>
+                <li><a href="javascript:sample('GET', 'fruits?$filter=color $eq red')">reads all red fruits (GET /fruits?$filter=color $eq red)</a></li>
+                <li><a href="javascript:sample('GET', 'fruits?$filter=$exists discount')">get fruits with discount (GET /fruits?$filter=$exists discount)</a></li>
                 <li><a href="javascript:sample('DELETE', 'fruits?$filter=name $eq \'apple\'')">delete all apples (DELETE /fruits?$filter=...)</a></li>
-                <li><a href="javascript:sample('POST', 'fruits', {'name':'apple'})">add a new apple (POST /fruits)</a></li>
+                <li><a href="javascript:sample('POST', 'fruits', {'name':'apple','color':'yellow',price:2.49})">add a new apple (POST /fruits)</a></li>
                 </ol>
             </fieldset>
         </form>

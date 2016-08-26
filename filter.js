@@ -14,14 +14,13 @@ var grammar = {
             ["\\$(gt|GT)\\b",               "return 'GT';"],
             ["\\$(gte|GTE)\\b",             "return 'GTE';"],
             ["\\$(exists|EXISTS)\\b",       "return 'EXISTS';"],
-            ["\\$(contains|CONTAINS)\\b",   "return 'CONTAINS';"],
             ["\\$(regex|REGEX)\\b",         "return 'REGEX';"],
             ["\\(",                         "return '(';"],
             ["\\)",                         "return ')';"],
             ["\\w+\\b",                     "return 'WORD';"],
             ["\\'[^\\']*\\'",               "return 'LITERAL';"],
             ["\"[^\"]*\"",                  "return 'LITERAL';"],
-            ["[0-9]+('.'[0-9]+)?\\b",       "return 'NUMBER';"],
+            ["[0-9]+(\\.[0-9]+)?\\b",       "return 'NUMBER';"],
             ["$",                           "return 'EOF';"]
             
         ]
@@ -54,7 +53,7 @@ var grammar = {
             ["l LTE r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$lte'] = $3;"],
             ["l GT r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$gt'] = $3;"],
             ["l GTE r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$gte'] = $3;"],
-            ["EXISTS l", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$exists'] = true; "],
+            ["EXISTS l", "$$ = new Object(); $$[$2] = new Object(); $$[$2]['$exists'] = true;"],
             ["l REGEX r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$regex'] = new RegExp($3);"],
             ["( e )", "$$ = $2;"]
         ],

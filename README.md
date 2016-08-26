@@ -15,9 +15,8 @@ It enables client sided javascript components to access database content via HTT
 This can be used i.e. for HTML5 applications.
 
 ## Installation
-You can download the source from [Github](https://github.com/bi-tm/express-nedb-rest) or install it (soon) with npm:
+You can download the source from [Github](https://github.com/bi-tm/express-nedb-rest) or install it with npm:
 
-** npm module not ready yet ! **
 ```
 npm install express-nedb-rest
 ```
@@ -67,22 +66,58 @@ There you can send AJAX calls to nedb rest api to test CRUD operations.
 
 ## API schema
 
-| Route            | Method | Notes                       |
+The module can be conneceted to multiple NeDB data storages, which i also call collections.
+Each CRUD command as a combining of HTTP method (GET,POST,...), URL and HTTP-body.
+The following table gives a quick overview of possible commands.
+
+| URL              | Method | Notes                       |
 | ---------------- | ------ | --------------------------- |
 | /                | GET    | get list of collections (= datastores) |
 | /:collection     | GET    | Search the collection (uses query parameter $filter $orderby) |
 | /:collection/:id | GET    | Retrieve a single document  |
 | /:collection     | POST   | Create a single document    |
 | /:collection/:id | PUT    | Update a single document    |
-| /:collection     | PUT    | Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields |
-| /:collection/:id | DELETE | Remove single  documents    |
+| /:collection     | PUT    | Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |
+| /:collection/:id | DELETE | Remove single  document     |
 | /:collection     | DELETE | Remove multiple documents (uses query parameter $filter) |
 
-## Query parameter $filter
-*description missing...*
+## Creating Documents  <a name="creating-documents"/>
+To create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.
+Each document must have a unique key value, which is named '_id'. If you don't define an _id for document,
+NeDB will generate a 16 character long string as _id. Please refer to [NeDB documentation](https://github.com/louischatriot/nedb#inserting-documents).
+Onb succes the server will respond with status code 201, and in the body the created document as JSON string.
 
-## Query parameter $orderby
-*description missing...*
+## Reading Documents <a name="reading-documents"/>
+Read operation are done with HTTP GET calls. You may read single documents by appending the document _id to the URL.
+In this case the server will respond with the document as JSON string.
+
+You can also query multiple documents and set a [$filter](#$filter) as parameter. In that case the response contains an array of document objects (JSON formatted).
+You may also get an empty array, if no document matches the filter. The result can be sorted with parameter [$orderby](#$orderby)
+
+## Updating Documents <a name="updating-documents"/>
+... to be documented
+
+## Deleting Documents <a name="deleting-documents"/>
+... to be documented
+
+## Query parameter $filter <a name="$filter"/>
+The $filter parameter is used, to define a subset of documents of a collection.
+Filter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT) and [deleting](#deleting-documents) (DELETE) commands.
+
+A filter consists of one or more filter conditions, which are linked with logical and/or operations.
+Here a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
+| operators | description                                                   | sample |
+| --------- | ------------------------------------------------------------- | ------ |
+| $eq $ne   | equal, not equal                                              | /fruits?$filter=color $eq red  |
+| $lt $lte  | less than, less than or equal                                 | /fruits?$filter=price $lt 2.00 |
+| $gt $gte  | greater than, greater than or equal                           |        |
+| $exists   | checks whether the document posses the property field.        | /fruits?$filter=$exists discount |
+| $regex    | checks whether a string is matched by the regular expression. |        |
+| $and $or  | logical and/or oparator                                       |        |
+| $not      | not operator
+
+## Query parameter $orderby <a name="$orderby"/>
+... to be documented
 
 ## Query parameter $count
-*description missing...*
+... to be documented

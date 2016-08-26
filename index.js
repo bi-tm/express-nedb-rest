@@ -32,7 +32,13 @@ function expressNedbRest() {
             throw { status: 404, 
                     message: "unknown collection " + req.collection }; // Bad Request
         }
-        req.$filter = filter(req.query.$filter);
+        try {
+            req.$filter = filter(req.query.$filter);
+        }
+        catch (e) {
+            throw { status: 404, 
+                    message: "unvalid $filter " + e.message }; // Bad Request
+        }
         next();
     });
 
