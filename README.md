@@ -70,37 +70,37 @@ The module can be conneceted to multiple NeDB data storages, which i also call c
 Each CRUD command as a combining of HTTP method (GET,POST,...), URL and HTTP-body.
 The following table gives a quick overview of possible commands.
 
-| URL              | Method | Notes                       |
-| ---------------- | ------ | --------------------------- |
-| /                | GET    | get list of collections (= datastores) |
-| /:collection     | GET    | Search the collection (uses query parameter $filter $orderby) |
-| /:collection/:id | GET    | Retrieve a single document  |
-| /:collection     | POST   | Create a single document    |
-| /:collection/:id | PUT    | Update a single document    |
-| /:collection     | PUT    | Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |
-| /:collection/:id | DELETE | Remove single  document     |
-| /:collection     | DELETE | Remove multiple documents (uses query parameter $filter) |
+|URL              | Method |Notes                       |
+|---------------- | ------ |--------------------------- |
+|/                | GET    |get list of collections (= datastores) |
+|/:collection     | GET    |Search the collection (uses query parameter $filter $orderby) |
+|/:collection/:id | GET    |Retrieve a single document  |
+|/:collection     | POST   |Create a single document    |
+|/:collection/:id | PUT    |Update a single document    |
+|/:collection     | PUT    |Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |
+|/:collection/:id | DELETE |Remove single  document     |
+|/:collection     | DELETE |Remove multiple documents (uses query parameter $filter) |
 
-## Creating Documents  <a name="creating-documents"/>
+## <a name="creating-documents">Creating Documents</a>
 To create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.
 Each document must have a unique key value, which is named '_id'. If you don't define an _id for document,
 NeDB will generate a 16 character long string as _id. Please refer to [NeDB documentation](https://github.com/louischatriot/nedb#inserting-documents).
 Onb succes the server will respond with status code 201, and in the body the created document as JSON string.
 
-## Reading Documents <a name="reading-documents"/>
+## <a name="reading-documents">Reading Documents</a>
 Read operation are done with HTTP GET calls. You may read single documents by appending the document _id to the URL.
 In this case the server will respond with the document as JSON string.
 
 You can also query multiple documents and set a [$filter](#$filter) as parameter. In that case the response contains an array of document objects (JSON formatted).
 You may also get an empty array, if no document matches the filter. The result can be sorted with parameter [$orderby](#$orderby)
 
-## Updating Documents <a name="updating-documents"/>
+## <a name="updating-documents">Updating Documents</a>
 ... to be documented
 
-## Deleting Documents <a name="deleting-documents"/>
+## <a name="deleting-documents">Deleting Documents</a>
 ... to be documented
 
-## Query parameter $filter <a name="$filter"/>
+## <a name="$filter">Query parameter $filter</a>
 The $filter parameter is used, to define a subset of documents of a collection. They can be used not only for reading, but also for deleting and updating documents.
 Filter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT) and [deleting](#deleting-documents) (DELETE) commands.
 
@@ -119,13 +119,13 @@ Here a list of valid operations. For more informations please consult [NeDB docu
 | $and $or  | logical and/or oparator                                       | /fruits?$filter=name $eq apple $and color $eq red       |
 | $not      | not operator                                                  | /fruits?$filter=$not name $regex foo                    |
 
-## Query parameter $orderby <a name="$orderby"/>
+## <a name="$orderby">Query parameter $orderby</a>
 You may sort the result of a query with "$orderby" parameter. The parameter may contain multiple fieldnames concatenated by commas (,). 
 Each fieldname can be followed by keywword `asc` or `desc` to define sorting directions. Ascending is default direction, so you may omit it.
 
-Example:```/frtuis?$orderby=price```
+Example:```/fruits?$orderby=price```
 
-## Query parameter $count
+## <a name="$count">Query parameter $count</a>
 If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set. 
 
-Example:```/frtuis?$orderby=price&$count```
+Example:```/fruits?$filter=name $eq apple&$count```

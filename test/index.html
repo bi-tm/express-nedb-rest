@@ -96,6 +96,7 @@
                 <li><a href="javascript:sample('GET', 'fruits?$filter=color $eq red')">reads all red fruits (GET /fruits?$filter=color $eq red)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits?$filter=$exists discount')">get fruits with discount (GET /fruits?$filter=$exists discount)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits?$orderby=price desc')">sort fruits by descending price(GET /fruits?$orderby=price desc)</a></li>
+                <li><a href="javascript:sample('GET', 'fruits?$filter=name $eq apple&$count')">count apple documents (GET /fruits?$filter=name $eq apple&$count)</a></li>
                 <li><a href="javascript:sample('DELETE', 'fruits?$filter=name $eq \'apple\'')">delete all apples (DELETE /fruits?$filter=...)</a></li>
                 <li><a href="javascript:sample('POST', 'fruits', {'name':'apple','color':'yellow',price:2.49})">add a new apple (POST /fruits)</a></li>
                 <li><a href="javascript:sample('PUT', 'fruits?$filter=name $regex berry', {'$set':{'discount':0.10}})">set discount to all berries (PUT {'$set':{'discount':0.10}})</a></li>

@@ -167,7 +167,6 @@ function addRestMethods(router) {
                 }
                 res.locals.count = count;
                 res.status(200).send(count.toString());
-                next();
             });
         }
     });
