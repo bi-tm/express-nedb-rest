@@ -17,10 +17,12 @@ var grammar = {
             ["\\$(regex|REGEX)\\b",         "return 'REGEX';"],
             ["\\(",                         "return '(';"],
             ["\\)",                         "return ')';"],
+            ["\\d+(\\.\\d+)?\\b",           "return 'NUMBER';"],
+            ["true|TRUE|false|FALSE\\b",    "return 'BOOLEAN';"],
+            ["\\d{4}-\\d{2}-\\d{2}\\b",     "return 'DATE';"],
             ["\\w+\\b",                     "return 'WORD';"],
             ["\\'[^\\']*\\'",               "return 'LITERAL';"],
             ["\"[^\"]*\"",                  "return 'LITERAL';"],
-            ["[0-9]+(\\.[0-9]+)?\\b",       "return 'NUMBER';"],
             ["$",                           "return 'EOF';"]
             
         ]
@@ -63,9 +65,11 @@ var grammar = {
         ],
         
         "r": [
-            ["WORD", "$$ = yytext;"],
-            ["NUMBER", "$$ = Number(yytext);"],
-            ["LITERAL", "$$ = yytext.slice(1,yytext.length-1);"]
+            ["WORD",    "$$ = yytext;"],
+            ["NUMBER",  "$$ = Number(yytext);"],
+            ["LITERAL", "$$ = yytext.slice(1,yytext.length-1);"],
+            ["BOOLEAN", "$$ = yytext.toLowerCase() === 'true';"],
+            ["DATE",    "$$ = new Date(yytext);"]
         ]
     }
 };    

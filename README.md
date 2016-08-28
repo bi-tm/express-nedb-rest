@@ -101,23 +101,31 @@ You may also get an empty array, if no document matches the filter. The result c
 ... to be documented
 
 ## Query parameter $filter <a name="$filter"/>
-The $filter parameter is used, to define a subset of documents of a collection.
+The $filter parameter is used, to define a subset of documents of a collection. They can be used not only for reading, but also for deleting and updating documents.
 Filter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT) and [deleting](#deleting-documents) (DELETE) commands.
 
 A filter consists of one or more filter conditions, which are linked with logical and/or operations.
+Filters are set by the $filter parameter which contains a string. The string will be parsed and transformed to a NeDB filter object.
+Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number or Date.
+
 Here a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
-| operators | description                                                   | sample |
-| --------- | ------------------------------------------------------------- | ------ |
-| $eq $ne   | equal, not equal                                              | /fruits?$filter=color $eq red  |
-| $lt $lte  | less than, less than or equal                                 | /fruits?$filter=price $lt 2.00 |
-| $gt $gte  | greater than, greater than or equal                           |        |
-| $exists   | checks whether the document posses the property field.        | /fruits?$filter=$exists discount |
-| $regex    | checks whether a string is matched by the regular expression. |        |
-| $and $or  | logical and/or oparator                                       |        |
-| $not      | not operator
+| operators | description                                                   | example                                                 |
+| --------- | ------------------------------------------------------------- | ------------------------------------------------------- |
+| $eq $ne   | equal, not equal                                              | /fruits?$filter=color $eq red                           |
+| $lt $lte  | less than, less than or equal                                 | /fruits?$filter=price $lt 2.00                          |
+| $gt $gte  | greater than, greater than or equal                           | /fruits?$filter=price $gte 5.00                         |
+| $exists   | checks whether the document posses the property field.        | /fruits?$filter=$exists discount                        |
+| $regex    | checks whether a string is matched by the regular expression. | /fruits?filter=name $regex foo                          |
+| $and $or  | logical and/or oparator                                       | /fruits?$filter=name $eq apple $and color $eq red       |
+| $not      | not operator                                                  | /fruits?$filter=$not name $regex foo                    |
 
 ## Query parameter $orderby <a name="$orderby"/>
-... to be documented
+You may sort the result of a query with "$orderby" parameter. The parameter may contain multiple fieldnames concatenated by commas (,). 
+Each fieldname can be followed by keywword `asc` or `desc` to define sorting directions. Ascending is default direction, so you may omit it.
+
+Example:```/frtuis?$orderby=price```
 
 ## Query parameter $count
-... to be documented
+If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set. 
+
+Example:```/frtuis?$orderby=price&$count```

@@ -19,27 +19,34 @@ function expressNedbRest() {
         next();
     });
 
-    // call validator function, if configured
-    if (router.cfg.validator) {
-        router.use(router.cfg.validator);
-    }
-
     // find datastore of collection and add it to request object
     router.param('collection', function collectionParam(req, res, next, collection) {
+
+        // call validator function, if configured
+        if (req.cfg.validator) {
+            req.cfg.validator(req, res, next);
+        }
+        
+        // sadd collection information to request object
         req.collection = collection;
         req.nedb = req.cfg.collections[collection];
+        
         if (!req.nedb) {
-            throw { status: 404, 
-                    message: "unknown collection " + req.collection }; // Bad Request
+            next({ status: 404, // Bad Request
+                   message: "unknown collection " + req.collection }) ; 
         }
-        try {
-            req.$filter = filter(req.query.$filter);
+        else {
+            // parse filter
+            try {
+                req.$filter = filter(req.query.$filter);
+                next();
+            }
+            catch (e) {
+                // parser error
+                next({ status: 404, // Bad Request
+                       message: "unvalid $filter " + e.message }); 
+            }
         }
-        catch (e) {
-            throw { status: 404, 
-                    message: "unvalid $filter " + e.message }; // Bad Request
-        }
-        next();
     });
 
     // add object id from uri to request 
@@ -51,27 +58,44 @@ function expressNedbRest() {
     // register methods for GET, POST, ...
     addRestMethods(router);
 
-    // send json result at last
+    // at last send json result or error
     router.use(function(req, res, next){
+        if(res.locals.count) {
+            res.append('X-Total-Count', res.locals.count);
+        }
         if (res.locals.json) {
             res.json(res.locals.json);
         }
-        else if (res.locals.err) {
-            res.status(400);
-            res.send(res.locals.err);
-            next();
-        }
-        else {
-            next();
-        }        
+        next();
     });
 
-    // declare method to add datastore
+    // error handling
+    router.use(function(err, req, res, next){
+        if ( typeof(err) ==='object') {
+            res.status(err.status || 400);
+            res.send(err.message || 'unknown error');
+        }
+        else  {
+            res.status(400);
+            res.send(err.toString());
+        }
+    });
+
+    /**
+     * add a NeDB datastore to REST collections
+     * @param {string} collection's name, wich is used for publication in REST calls
+     * @param {Datastore) NeDB Datastore object
+     * @public
+     */
     router.addDatastore = function(collection, store) {
         this.cfg.collections[collection] = store;
     };
 
-    // declare method to set validator callback function
+    /**
+     * add a callback function, which will be called before each NeDB database call.
+     * @param {function) callback function with expressJS signatire (req, res, next) 
+     * @public
+     */
     router.setValidator = function(f) {
         if (typeof(f) == "function") {
             this.cfg.validator = f;
@@ -94,14 +118,15 @@ function addRestMethods(router) {
     
     //--------------------------------------------------------------------------
     router.get('/', function (req, res, next) {
+        // return an array with all collection's names 
         res.locals.json = [];
         for(var name in req.cfg.collections) {
             res.locals.json.push({
-                "name": name, 
-                "link": fullUrl(req) + name
+                "name":  name, 
+                "link":  fullUrl(req) + name
             });    
         }
-        res.append('X-Total-Count', res.locals.json.length);
+        res.locals.count = res.locals.json.length;
         next();
     });
 
@@ -109,32 +134,40 @@ function addRestMethods(router) {
     router.get('/:collection', function (req, res, next) {
         
         if (typeof(req.query.$count) == "undefined") {
+            // normal query
             var query = req.nedb.find(req.$filter);
-            var $order = order(req.query.$orderby);
-            if ($order) query.sort($order);
+            // parse orderby
+            if (req.query.$orderby) {
+            try {
+                    var $order = order(req.query.$orderby);
+                    if ($order) query.sort($order);
+                }
+                catch (e) {
+                    // parser error
+                    next({ status: 404, // Bad Request
+                           message: "unvalid $orderby " + e.message }); 
+                }
+            }
             if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
             if (!isNaN(req.query.$limit)) query.limit(parseInt(req.query.$limit));
             query.exec(function(err, docs) {
                 if (err) {
                     return next(err);
                 }
-                else {
-                    res.append('X-Total-Count', docs.length);
-                    res.locals.json = docs;
-                    next();
-                }
+                res.locals.count = docs.length;
+                res.locals.json = docs;
+                next();
             });
         }
         else {
+            // count of documents requested
             req.nedb.count(req.$filter, function(err, count) {
                 if (err) {
                     return next(err);
                 }
-                else {
-                    res.append('X-Total-Count', count);
-                    res.status(200).send(count.toString());
-                    next();
-                }
+                res.locals.count = count;
+                res.status(200).send(count.toString());
+                next();
             });
         }
     });
@@ -146,24 +179,24 @@ function addRestMethods(router) {
                 return next(err);
             }
             if (!doc) {
-                res.status(404) // Not Found
+                return next({status:404, message:"document "+req.collection+" _id="+req.id+" not found"});
             }
-            res.locals.json = doc
+            res.locals.json = doc;
             next();
-        })
+        });
     });
 
 
     //--------------------------------------------------------------------------
     router.post('/:collection', function (req, res, next) {
-        if (!req.body || req.body == "") {
-            throw { status: 400, message: 'No Request Body' }; // Bad Request
+        if (!req.body || typeof(req.body) != 'object') {
+            return next({ status: 400, message: 'No Request Body' }); // Bad Request
         }
         req.nedb.insert(req.body, function (err, doc) { 
             if (err) {
                 return next(err);
             }
-            res.append('Location', fullUrl(req) + '/' + doc._id)
+            res.append('Location', fullUrl(req) + '/' + doc._id);
             res.status(201); // Created
             res.locals.json = doc;
             next();
@@ -178,12 +211,13 @@ function addRestMethods(router) {
                 return next(err);
             }
             if (count != 1) {
-                res.status(404) // Not Found
+                return next({status:404, message:"document "+req.collection+" _id="+req.id+" not found"});
             }
             else {
+                res.locals.count = count;
                 res.status(204).send("deleted entries: "+count); 
             }
-        })
+        });
     });
 
 
@@ -197,49 +231,44 @@ function addRestMethods(router) {
                 return next(err);
             }
             if (count == 0) {
-                res.status(404) // Not Found
+                return next({status:404, message:"no document found to delete"});
             }
-            else {
-                res.status(204).send("deleted entries: "+count);
-            }
-        })
+            res.locals.count = count;
+            res(204).send("deleted entries: "+count);
+        });
     });
     
     //--------------------------------------------------------------------------
     router.put('/:collection/:id', function (req, res, next) {
-        if (!req.body || req.body == "") {
-            throw { status: 400, message: 'No Request Body' }; // Bad Request
-        }
-        req.nedb.update(req.$filter, req.body, {multi:true}, function (err, count, doc) {
-            if (err) {
-                return next(err);
-            }
-            if (count != 1) {
-                res.status(404);// Not Found
-            }
-            else {
-                res.locals.json = doc;
-                next();
-            }
-        });
-    });
-
-    //--------------------------------------------------------------------------
-    router.put('/:collection', function (req, res, next) {
-        if (!req.body || req.body == "") {
-            throw { status: 400, message: 'No Request Body' }; // Bad Request
+        if (!req.body || typeof(req.body) != 'object') {
+            return next({ status: 400, message: 'No Request Body' }); // Bad Request
         }
         req.nedb.update(req.$filter, req.body, {multi:false}, function (err, count, doc) {
             if (err) {
                 return next(err);
             }
             if (count != 1) {
-                res.status(404);// Not Found
+                return next({status:404, message:"document "+req.collection+" _id="+req.id+" not found"});
             }
-            else {
-                res.locals.json = doc;
-                next();
+            res.locals.count = count;
+            res.locals.json = doc;
+        });
+    });
+
+    //--------------------------------------------------------------------------
+    router.put('/:collection', function (req, res, next) {
+        if (!req.body || typeof(req.body) != 'object') {
+            return next({ status: 400, message: 'No Request Body' }); // Bad Request
+        }
+        req.nedb.update(req.$filter, req.body, {multi:true}, function (err, count, docs) {
+            if (err) {
+                return next(err);
             }
+            if (count == 0) {
+                return next({status:404, message:"no document found to update"});
+            }
+            res.locals.count = count;
+            res.status(204).send(count.toString()+" document(s) updated");
         });
     });
     
