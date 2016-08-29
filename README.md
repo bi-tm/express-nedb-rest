@@ -9,10 +9,10 @@ I like it's zero administration and easy integration into nodejs application.
 There is no need to start a daemon process and to communicate with it.
 Unfortunately i found no RESTful web API for this database, so here is my first try to implement one.
 
-My module is built on [ExpressJS]((http://expressjs.com/) server framework and provides an express Router object.
+My module is built on [ExpressJS](http://expressjs.com/) server framework and provides an express Router object.
 This can be integrated easily into any express application as middleware.
 
-The API enables client sided javascript components to access database content via HTTP RESTfull calls.
+The API enables client sided javascript components to access database content via HTTP RESTful calls.
 This can be used i.e. for HTML5 applications.
 
 ## Installation
@@ -160,14 +160,16 @@ Here is a list of valid operations. For more informations please consult [NeDB d
 
 ## <a name="$orderby">Query parameter $orderby</a>
 You may sort the result of a query with "$orderby" parameter.
-You can use it in [reading](#reading-documents) operations only.
+You can use it in [reading](#reading-documents) (GET) operations only.
 The parameter may contain multiple fieldnames concatenated by commas (,). 
 Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction. 
 Ascending is default direction, so you may omit it.
 
-Example:```/fruits?$orderby=price```
+Example:  ```/fruits?$orderby=price```
 
 ## <a name="$count">Query parameter $count</a>
-If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set. 
+If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set.
+You can use this parameter in [reading](#reading-documents) (GET) operations only.
+The server responds with a number (no JSON object or array).
 
-Example:```/fruits?$filter=name $eq apple&$count```
+Example:  ```/fruits?$filter=name $eq apple&$count```
