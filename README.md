@@ -88,7 +88,7 @@ The following table gives a quick overview of possible commands.
 To create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.
 Each document must have a unique key value, which is named '_id'. If you don't define an _id for document,
 NeDB will generate a 16 character long string as _id. Please refer to [NeDB documentation](https://github.com/louischatriot/nedb#inserting-documents).
-Onb succes the server will respond with status code 201, and in the body the created document as JSON string.
+On success the server will respond with status code 201, and the body will contain the created document as JSON string.
 
 ## <a name="reading-documents">Reading Documents</a>
 Read operation are done HTTP GET calls. You may read single documents by appending the document _id to the URL.
@@ -110,7 +110,7 @@ Updating operations are done by HTTP PUT calls. You can update a single document
 You must provide the document in HTTP body as JSON string. You cannot change key field _id.
 The document will be completely overwritten with the new content.
 If you want to update a property without changing other fields, you have to use a special [NeDB syntax](https://github.com/louischatriot/nedb#updating-documents).
-There a operations $set, $unset, $inc and more. The JSON string in HTTP body is passed to NeDB without any checks. 
+There are operations $set, $unset, $inc and more. The JSON string in HTTP body is passed to NeDB without any checks. 
 
 ```
 HTTP PUT \fruits\J1t1kMDp4PWgPfhe
@@ -126,12 +126,13 @@ HTTP PUT \fruits?$filter=name $regex berry
 ```
 
 ## <a name="deleting-documents">Deleting Documents</a>
-Documents can be deleted by HTTP DELETE calls. You can delete a single document by appending the document (_id) to the URL.
+Documents can be deleted by HTTP DELETE calls. You can delete a single document by appending the document key (_id) to the URL.
 ```
 HTTP DELETE \fruits\J1t1kMDp4PWgPfhe
 ```
 
 If you omit the _id, you must define [$filter](#$filter) parameter, to specify a subset of documents.
+If you omit the $filter parameter, the server will respond with error status 405.
 
 ```
 HTTP DELETE \fruits?$filter=name $regex berry
@@ -139,12 +140,11 @@ HTTP DELETE \fruits?$filter=name $regex berry
 
 ## <a name="$filter">Query parameter $filter</a>
 The $filter parameter is used, to define a subset of documents of a collection.
-They can be used not only for reading, but also for deleting and updating documents.
 Filter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT)
 and [deleting](#deleting-documents) (DELETE) commands.
 
-A filter consists of one or more filter conditions, which are linked with logical and/or operations.
-Filters are set by the $filter parameter which contains a string. The string will be parsed and transformed to a NeDB filter object.
+A filter consists of one or more conditions, which are linked with logical and/or operations.
+Filters are set by the $filter parameter. The string will be parsed and transformed to a NeDB filter object.
 Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number or Date.
 
 Here is a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
