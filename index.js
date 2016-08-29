@@ -242,7 +242,7 @@ function addRestMethods(router) {
         if (!req.body || typeof(req.body) != 'object') {
             return next({ status: 400, message: 'No Request Body' }); // Bad Request
         }
-        req.nedb.update(req.$filter, req.body, {multi:false}, function (err, count, doc) {
+        req.nedb.update({_id:req.id}, req.body, {multi:false}, function (err, count) {
             if (err) {
                 return next(err);
             }
@@ -250,7 +250,7 @@ function addRestMethods(router) {
                 return next({status:404, message:"document "+req.collection+" _id="+req.id+" not found"});
             }
             res.locals.count = count;
-            res.locals.json = doc;
+            res.status(204).send("updated entries: "+count);
         });
     });
 
@@ -267,7 +267,7 @@ function addRestMethods(router) {
                 return next({status:404, message:"no document found to update"});
             }
             res.locals.count = count;
-            res.status(204).send(count.toString()+" document(s) updated");
+            res.status(204).send("updated entries: "+count);
         });
     });
     
