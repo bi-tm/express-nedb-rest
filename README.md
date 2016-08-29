@@ -66,20 +66,20 @@ There you can send AJAX calls to nedb rest api to test CRUD operations.
 
 ## API schema
 
-The module can be conneceted to multiple NeDB data storages, which i also call collections.
-Each CRUD command as a combining of HTTP method (GET,POST,...), URL and HTTP-body.
+The module can be conneceted to multiple NeDB data storages, which are called *collections*.
+Each CRUD command is a combination of a HTTP method (GET,POST,...), URL and HTTP-body.
 The following table gives a quick overview of possible commands.
 
-|URL              | Method |Notes                       |
-|---------------- | ------ |--------------------------- |
-|/                | GET    |get list of collections (= datastores) |
-|/:collection     | GET    |Search the collection (uses query parameter $filter $orderby) |
-|/:collection/:id | GET    |Retrieve a single document  |
-|/:collection     | POST   |Create a single document    |
-|/:collection/:id | PUT    |Update a single document    |
-|/:collection     | PUT    |Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |
-|/:collection/:id | DELETE |Remove single  document     |
-|/:collection     | DELETE |Remove multiple documents (uses query parameter $filter) |
+| URL              | Method | Notes                       |
+|----------------- | ------ | --------------------------- |
+| /                | GET    | get list of collections (= datastores) |
+| /:collection     | GET    | Search the collection (uses query parameter $filter $orderby) |
+| /:collection/:id | GET    | Retrieve a single document  |
+| /:collection     | POST   | Create a single document    |
+| /:collection/:id | PUT    | Update a single document    |
+| /:collection     | PUT    | Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |
+| /:collection/:id | DELETE | Remove single  document     |
+| /:collection     | DELETE | Remove multiple documents (uses query parameter $filter) |
 
 ## <a name="creating-documents">Creating Documents</a>
 To create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.
@@ -88,17 +88,51 @@ NeDB will generate a 16 character long string as _id. Please refer to [NeDB docu
 Onb succes the server will respond with status code 201, and in the body the created document as JSON string.
 
 ## <a name="reading-documents">Reading Documents</a>
-Read operation are done with HTTP GET calls. You may read single documents by appending the document _id to the URL.
+Read operation are done HTTP GET calls. You may read single documents by appending the document _id to the URL.
 In this case the server will respond with the document as JSON string.
+
+```
+HTTP GET \fruits\J1t1kMDp4PWgPfhe
+```
 
 You can also query multiple documents and set a [$filter](#$filter) as parameter. In that case the response contains an array of document objects (JSON formatted).
 You may also get an empty array, if no document matches the filter. The result can be sorted with parameter [$orderby](#$orderby)
 
+```
+HTTP GET \fruits?$filter=$price $lt 3.00&$orderby=price
+```
+
 ## <a name="updating-documents">Updating Documents</a>
-... to be documented
+Updating operations are done by HTTP PUT calls. You can update a single document by appending the document key (_id) to URL.
+You must provide the document in HTTP body as JSON string. You cannot change key field _id.
+The document will be completely overwritten with the new content.
+If you want to update a property without changing other fields, you have to use a special [NeDB syntax](https://github.com/louischatriot/nedb#updating-documents).
+There a operations $set, $unset, $inc and more. The JSON string in HTTP body is passed to NeDB without any checks. 
+
+```
+HTTP PUT \fruits\J1t1kMDp4PWgPfhe
+{ $set: { discount: 0.10 } }
+```
+
+You can also update multiple documents by calling a DELETE command without _id. You should define a [$filter](#$filter), otherwise all documents are changed.
+It is recommded to use special update operations (i.e. $set) to change single document fields, 
+it makes certainly no sense to overwrite all selected documents with same content.
+```
+HTTP PUT \fruits?$filter=name $regex berry
+{ $set: { discount: 0.10 } }
+```
 
 ## <a name="deleting-documents">Deleting Documents</a>
-... to be documented
+Documents can be deleted by HTTP DELETE calls. You can delete a single document by appending the document (_id) to the URL.
+```
+HTTP DELETE \fruits\J1t1kMDp4PWgPfhe
+```
+
+If you omit the _id, you must define [$filter](#$filter) parameter, to specify a subset of documents.
+
+```
+HTTP DELETE \fruits?$filter=name $regex berry
+```
 
 ## <a name="$filter">Query parameter $filter</a>
 The $filter parameter is used, to define a subset of documents of a collection. They can be used not only for reading, but also for deleting and updating documents.
