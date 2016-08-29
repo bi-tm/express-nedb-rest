@@ -1,6 +1,6 @@
 {
   "name": "express-nedb-rest",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "REST api for nedb database implemented in nodejs, based on express http server",
   "main": "index.js",
   "dependencies": {
