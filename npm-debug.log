@@ -1,112 +1,31 @@
 0 info it worked if it ends with ok
 1 verbose cli [ '/home/ubuntu/.nvm/versions/node/v4.4.5/bin/node',
 1 verbose cli   '/home/ubuntu/.nvm/versions/node/v4.4.5/bin/npm',
-1 verbose cli   'publish' ]
+1 verbose cli   'version',
+1 verbose cli   'patch' ]
 2 info using npm@2.15.5
 3 info using node@v4.4.5
-4 verbose publish [ '.' ]
-5 silly cache add args [ '.', null ]
-6 verbose cache add spec .
-7 silly cache add parsed spec Result {
-7 silly cache add   raw: '.',
-7 silly cache add   scope: null,
-7 silly cache add   name: null,
-7 silly cache add   rawSpec: '.',
-7 silly cache add   spec: '/home/ubuntu/workspace',
-7 silly cache add   type: 'directory' }
-8 verbose addLocalDirectory /home/ubuntu/.npm/express-nedb-rest/1.0.1/package.tgz not in flight; packing
-9 verbose correctMkdir /home/ubuntu/.npm correctMkdir not in flight; initializing
-10 verbose tar pack [ '/home/ubuntu/.npm/express-nedb-rest/1.0.1/package.tgz',
-10 verbose tar pack   '/home/ubuntu/workspace' ]
-11 verbose tarball /home/ubuntu/.npm/express-nedb-rest/1.0.1/package.tgz
-12 verbose folder /home/ubuntu/workspace
-13 info prepublish express-nedb-rest@1.0.1
-14 verbose addLocalTarball adding from inside cache /home/ubuntu/.npm/express-nedb-rest/1.0.1/package.tgz
-15 verbose correctMkdir /home/ubuntu/.npm correctMkdir not in flight; initializing
-16 silly cache afterAdd express-nedb-rest@1.0.1
-17 verbose afterAdd /home/ubuntu/.npm/express-nedb-rest/1.0.1/package/package.json not in flight; writing
-18 verbose correctMkdir /home/ubuntu/.npm correctMkdir not in flight; initializing
-19 verbose afterAdd /home/ubuntu/.npm/express-nedb-rest/1.0.1/package/package.json written
-20 silly publish { name: 'express-nedb-rest',
-20 silly publish   version: '1.0.1',
-20 silly publish   description: 'REST api for nedb database implemented in nodejs, based on express http server',
-20 silly publish   main: 'index.js',
-20 silly publish   dependencies:
-20 silly publish    { 'body-parser': '^1.15.2',
-20 silly publish      express: '^4.14.0',
-20 silly publish      jison: '^0.4.17',
-20 silly publish      nedb: '^1.8.0' },
-20 silly publish   devDependencies: {},
-20 silly publish   scripts: { test: 'test.js', start: 'node test/test.js' },
-20 silly publish   repository:
-20 silly publish    { type: 'git',
-20 silly publish      url: 'git+https://github.com/bi-tm/express-nedb-api.git' },
-20 silly publish   keywords: [ 'nedb', 'express', 'rest', 'api', 'nodejs' ],
-20 silly publish   author: { name: 'Torsten Manhardt' },
-20 silly publish   license: 'MIT',
-20 silly publish   bugs: { url: 'https://github.com/bi-tm/express-nedb-api/issues' },
-20 silly publish   homepage: 'https://github.com/bi-tm/express-nedb-api#readme',
-20 silly publish   readme: '# express-nedb-rest\nREST API for [NeDB](https://github.com/louischatriot/nedb) database, based on [express](http://expressjs.com/) HTTP server.\n\n__*This project has beta test status - please be prepared for errors!*__\n\nRecently i found the NeDB-project of Louis Chatriot (@louischatriot).\nHe developed a simple and very fast in-memory database (thank you!).\nI like it\'s zero administration and easy integration into nodejs application.\nThere is no need to start a daemon process and to communicate with it.\nUnfortunately i found no RESTful web API for this database, but here is my 1st try to implement one.\n\nMy module is built on ExpressJS server framework and delivers an express Router object.\nThis can be integrated easily into any express application.\nIt enables client sided javascript components to access database content via HTTP RESTfull calls.\nThis can be used i.e. for HTML5 applications.\n\n## Installation\nYou can download the source from [Github](https://github.com/bi-tm/express-nedb-rest) or install it with npm:\n\n```\nnpm install express-nedb-rest\n```\n\n## Quick start\nFollowing code snippet starts an express server, which serves nedb api at port 8080.\n```\nvar express = require(\'express\');\nvar nedb = require(\'nedb\');\nvar expressNedbRest = require(\'express-nedb-rest\');\n\n// setup express app\nvar oApp = express();\n\n// create  NEDB datastore\nvar datastore = new nedb({ filename: "test.db",  autoload: true });\n\n// create rest api router and connect it to datastote  \nvar restApi = expressNedbRest();\nrestApi.addDatastore(\'test\', datastore);\n\n// setup express server to serve rest service\noApp.use(\'/\', restApi);\n\noApp.listen(8080, function () {\n    console.log(\'you may use nedb rest api at port 8080\');\n});\n```\n\nAfter starting the sample server, you can request a list of nedb datastores at `http://localhost:8080/`.\nYou will get a response like:\n```\n[\n    {"name":"test","link":"http://localhost:8080/test"}\n]\n```\n\nFor further testing you should use a REST client (i.e. [postman](https://www.getpostman.com/) \nor use my primitive test tool in path test/test.js).\n\n## Test tool\nIn filepath `test` you fill find a primitive test tool `test.js`.\nIt creates an express http server and provides a `index.html` web page.\nThere you can send AJAX calls to nedb rest api to test CRUD operations.\n\n![screenshot](/test/screenshot.png)\n\n## API schema\n\nThe module can be conneceted to multiple NeDB data storages, which i also call collections.\nEach CRUD command as a combining of HTTP method (GET,POST,...), URL and HTTP-body.\nThe following table gives a quick overview of possible commands.\n\n|URL              | Method |Notes                       |\n|---------------- | ------ |--------------------------- |\n|/                | GET    |get list of collections (= datastores) |\n|/:collection     | GET    |Search the collection (uses query parameter $filter $orderby) |\n|/:collection/:id | GET    |Retrieve a single document  |\n|/:collection     | POST   |Create a single document    |\n|/:collection/:id | PUT    |Update a single document    |\n|/:collection     | PUT    |Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |\n|/:collection/:id | DELETE |Remove single  document     |\n|/:collection     | DELETE |Remove multiple documents (uses query parameter $filter) |\n\n## <a name="creating-documents">Creating Documents</a>\nTo create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.\nEach document must have a unique key value, which is named \'_id\'. If you don\'t define an _id for document,\nNeDB will generate a 16 character long string as _id. Please refer to [NeDB documentation](https://github.com/louischatriot/nedb#inserting-documents).\nOnb succes the server will respond with status code 201, and in the body the created document as JSON string.\n\n## <a name="reading-documents">Reading Documents</a>\nRead operation are done with HTTP GET calls. You may read single documents by appending the document _id to the URL.\nIn this case the server will respond with the document as JSON string.\n\nYou can also query multiple documents and set a [$filter](#$filter) as parameter. In that case the response contains an array of document objects (JSON formatted).\nYou may also get an empty array, if no document matches the filter. The result can be sorted with parameter [$orderby](#$orderby)\n\n## <a name="updating-documents">Updating Documents</a>\n... to be documented\n\n## <a name="deleting-documents">Deleting Documents</a>\n... to be documented\n\n## <a name="$filter">Query parameter $filter</a>\nThe $filter parameter is used, to define a subset of documents of a collection. They can be used not only for reading, but also for deleting and updating documents.\nFilter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT) and [deleting](#deleting-documents) (DELETE) commands.\n\nA filter consists of one or more filter conditions, which are linked with logical and/or operations.\nFilters are set by the $filter parameter which contains a string. The string will be parsed and transformed to a NeDB filter object.\nFilters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number or Date.\n\nHere a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).\n| operators | description                                                   | example                                                 |\n| --------- | ------------------------------------------------------------- | ------------------------------------------------------- |\n| $eq $ne   | equal, not equal                                              | /fruits?$filter=color $eq red                           |\n| $lt $lte  | less than, less than or equal                                 | /fruits?$filter=price $lt 2.00                          |\n| $gt $gte  | greater than, greater than or equal                           | /fruits?$filter=price $gte 5.00                         |\n| $exists   | checks whether the document posses the property field.        | /fruits?$filter=$exists discount                        |\n| $regex    | checks whether a string is matched by the regular expression. | /fruits?filter=name $regex foo                          |\n| $and $or  | logical and/or oparator                                       | /fruits?$filter=name $eq apple $and color $eq red       |\n| $not      | not operator                                                  | /fruits?$filter=$not name $regex foo                    |\n\n## <a name="$orderby">Query parameter $orderby</a>\nYou may sort the result of a query with "$orderby" parameter. The parameter may contain multiple fieldnames concatenated by commas (,). \nEach fieldname can be followed by keywword `asc` or `desc` to define sorting directions. Ascending is default direction, so you may omit it.\n\nExample:```/frtuis?$orderby=price```\n\n## <a name="$count">Query parameter $count</a>\nIf you append $count parameter to a query, the server returns the number of of matching documents instead of a result set. \n\nExample:```/frtuis?$orderby=price&$count```\n',
-20 silly publish   readmeFilename: 'README.md',
-20 silly publish   gitHead: 'e71a88b3ae66e9b74b395bb8b1254ccde8f30402',
-20 silly publish   _id: 'express-nedb-rest@1.0.1',
-20 silly publish   _shasum: '84a7e61f3f925a1f316df38caf12590b934ee3a4',
-20 silly publish   _from: '.' }
-21 verbose getPublishConfig undefined
-22 silly mapToRegistry name express-nedb-rest
-23 silly mapToRegistry using default registry
-24 silly mapToRegistry registry https://registry.npmjs.org/
-25 silly mapToRegistry data Result {
-25 silly mapToRegistry   raw: 'express-nedb-rest',
-25 silly mapToRegistry   scope: null,
-25 silly mapToRegistry   name: 'express-nedb-rest',
-25 silly mapToRegistry   rawSpec: '',
-25 silly mapToRegistry   spec: 'latest',
-25 silly mapToRegistry   type: 'tag' }
-26 silly mapToRegistry uri https://registry.npmjs.org/express-nedb-rest
-27 verbose publish registryBase https://registry.npmjs.org/
-28 silly publish uploading /home/ubuntu/.npm/express-nedb-rest/1.0.1/package.tgz
-29 verbose request uri https://registry.npmjs.org/express-nedb-rest
-30 verbose request sending authorization for write operation
-31 info attempt registry request try #1 at 7:31:01 PM
-32 verbose request using bearer token for auth
-33 verbose request id 3f530acd95950e8e
-34 http request PUT https://registry.npmjs.org/express-nedb-rest
-35 http 403 https://registry.npmjs.org/express-nedb-rest
-36 verbose headers { 'content-type': 'application/json',
-36 verbose headers   'cache-control': 'max-age=300',
-36 verbose headers   'content-length': '95',
-36 verbose headers   'accept-ranges': 'bytes',
-36 verbose headers   date: 'Sun, 28 Aug 2016 17:31:03 GMT',
-36 verbose headers   via: '1.1 varnish',
-36 verbose headers   connection: 'keep-alive',
-36 verbose headers   'x-served-by': 'cache-lhr6346-LHR',
-36 verbose headers   'x-cache': 'MISS',
-36 verbose headers   'x-cache-hits': '0',
-36 verbose headers   'x-timer': 'S1472405462.004058,VS0,VE1191',
-36 verbose headers   vary: 'Accept-Encoding' }
-37 verbose request invalidating /home/ubuntu/.npm/registry.npmjs.org/express-nedb-rest on PUT
-38 error publish Failed PUT 403
-39 verbose stack Error: "You cannot publish over the previously published version 1.0.1." : express-nedb-rest
-39 verbose stack     at makeError (/home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:264:12)
-39 verbose stack     at CachingRegistryClient.<anonymous> (/home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:252:14)
-39 verbose stack     at Request._callback (/home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:172:14)
-39 verbose stack     at Request.self.callback (/home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/node_modules/request/request.js:200:22)
-39 verbose stack     at emitTwo (events.js:87:13)
-39 verbose stack     at Request.emit (events.js:172:7)
-39 verbose stack     at Request.<anonymous> (/home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/node_modules/request/request.js:1067:10)
-39 verbose stack     at emitOne (events.js:82:20)
-39 verbose stack     at Request.emit (events.js:169:7)
-39 verbose stack     at IncomingMessage.<anonymous> (/home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/node_modules/request/request.js:988:12)
-40 verbose statusCode 403
-41 verbose pkgid express-nedb-rest
-42 verbose cwd /home/ubuntu/workspace
-43 error Linux 4.2.0-c9
-44 error argv "/home/ubuntu/.nvm/versions/node/v4.4.5/bin/node" "/home/ubuntu/.nvm/versions/node/v4.4.5/bin/npm" "publish"
-45 error node v4.4.5
-46 error npm  v2.15.5
-47 error code E403
-48 error "You cannot publish over the previously published version 1.0.1." : express-nedb-rest
-49 error If you need help, you may report this error at:
-49 error     <https://github.com/npm/npm/issues>
-50 verbose exit [ 1, true ]
+4 info git [ 'status', '--porcelain' ]
+5 verbose stack Error: Git working directory not clean.
+5 verbose stack D npm-debug.log
+5 verbose stack M package.json
+5 verbose stack     at /home/ubuntu/.nvm/versions/node/v4.4.5/lib/node_modules/npm/lib/version.js:171:21
+5 verbose stack     at ChildProcess.exithandler (child_process.js:204:7)
+5 verbose stack     at emitTwo (events.js:87:13)
+5 verbose stack     at ChildProcess.emit (events.js:172:7)
+5 verbose stack     at maybeClose (internal/child_process.js:827:16)
+5 verbose stack     at Socket.<anonymous> (internal/child_process.js:319:11)
+5 verbose stack     at emitOne (events.js:77:13)
+5 verbose stack     at Socket.emit (events.js:169:7)
+5 verbose stack     at Pipe._onclose (net.js:477:12)
+6 verbose cwd /home/ubuntu/workspace
+7 error Linux 4.2.0-c9
+8 error argv "/home/ubuntu/.nvm/versions/node/v4.4.5/bin/node" "/home/ubuntu/.nvm/versions/node/v4.4.5/bin/npm" "version" "patch"
+9 error node v4.4.5
+10 error npm  v2.15.5
+11 error Git working directory not clean.
+11 error D npm-debug.log
+11 error M package.json
+12 error If you need help, you may report this error at:
+12 error     <https://github.com/npm/npm/issues>
+13 verbose exit [ 1, true ]
