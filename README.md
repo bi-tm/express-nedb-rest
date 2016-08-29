@@ -3,15 +3,16 @@ REST API for [NeDB](https://github.com/louischatriot/nedb) database, based on [e
 
 __*This project has beta test status - please be prepared for errors!*__
 
-Recently i found the NeDB-project of Louis Chatriot (@louischatriot).
+Recently i found the [NeDB](https://github.com/louischatriot/nedb)-project of Louis Chatriot.
 He developed a simple and very fast in-memory database (thank you!).
 I like it's zero administration and easy integration into nodejs application.
 There is no need to start a daemon process and to communicate with it.
-Unfortunately i found no RESTful web API for this database, but here is my 1st try to implement one.
+Unfortunately i found no RESTful web API for this database, so here is my first try to implement one.
 
-My module is built on ExpressJS server framework and delivers an express Router object.
-This can be integrated easily into any express application.
-It enables client sided javascript components to access database content via HTTP RESTfull calls.
+My module is built on [ExpressJS]((http://expressjs.com/) server framework and provides an express Router object.
+This can be integrated easily into any express application as middleware.
+
+The API enables client sided javascript components to access database content via HTTP RESTfull calls.
 This can be used i.e. for HTML5 applications.
 
 ## Installation
@@ -59,27 +60,29 @@ or use my primitive test tool in path test/test.js).
 
 ## Test tool
 In filepath `test` you fill find a primitive test tool `test.js`.
-It creates an express http server and provides a `index.html` web page.
-There you can send AJAX calls to nedb rest api to test CRUD operations.
+You can start it with command ```node test/test.js```.
+It creates an express HTTP server and provides a `index.html` as web frontend.
+This frontend contains a formular, where you can fill in HTTP method, url and body text. 
+You can execute the different HTTP methods (GET,POST,PUT,DELETE) and you will see the response content. 
 
 ![screenshot](/test/screenshot.png)
 
 ## API schema
 
 The module can be conneceted to multiple NeDB data storages, which are called *collections*.
-Each CRUD command is a combination of a HTTP method (GET,POST,...), URL and HTTP-body.
+Each CRUD command is a combination of a HTTP method (GET,POST,PUT,DELETE), URL and HTTP-body.
 The following table gives a quick overview of possible commands.
 
-| URL              | Method | Notes                       |
-|----------------- | ------ | --------------------------- |
-| /                | GET    | get list of collections (= datastores) |
-| /:collection     | GET    | Search the collection (uses query parameter $filter $orderby) |
-| /:collection/:id | GET    | Retrieve a single document  |
-| /:collection     | POST   | Create a single document    |
-| /:collection/:id | PUT    | Update a single document    |
-| /:collection     | PUT    | Update multiple documents (uses query parameter $filter and [nedb notation](https://github.com/louischatriot/nedb#updating-documents) to update single fields) |
-| /:collection/:id | DELETE | Remove single  document     |
-| /:collection     | DELETE | Remove multiple documents (uses query parameter $filter) |
+| URL              | Method | Notes                                                          |
+|----------------- | ------ | -------------------------------------------------------------- |
+| /                | GET    | get list of collections (= datastores)                         |
+| /:collection     | GET    | Search in a collection (uses query parameter $filter $orderby) |
+| /:collection/:id | GET    | Retrieve a single document                                     |
+| /:collection     | POST   | Create a single document                                       |
+| /:collection/:id | PUT    | Update a single document                                       |
+| /:collection     | PUT    | Update multiple documents (uses query parameter $filter)       |
+| /:collection/:id | DELETE | Remove single  document                                        |
+| /:collection     | DELETE | Remove multiple documents (uses query parameter $filter)       |
 
 ## <a name="creating-documents">Creating Documents</a>
 To create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.
@@ -135,14 +138,16 @@ HTTP DELETE \fruits?$filter=name $regex berry
 ```
 
 ## <a name="$filter">Query parameter $filter</a>
-The $filter parameter is used, to define a subset of documents of a collection. They can be used not only for reading, but also for deleting and updating documents.
-Filter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT) and [deleting](#deleting-documents) (DELETE) commands.
+The $filter parameter is used, to define a subset of documents of a collection.
+They can be used not only for reading, but also for deleting and updating documents.
+Filter may be used for [reading](#reading-documents) (GET), [updating](#updating-documents) (PUT)
+and [deleting](#deleting-documents) (DELETE) commands.
 
 A filter consists of one or more filter conditions, which are linked with logical and/or operations.
 Filters are set by the $filter parameter which contains a string. The string will be parsed and transformed to a NeDB filter object.
 Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number or Date.
 
-Here a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
+Here is a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
 | operators | description                                                   | example                                                 |
 | --------- | ------------------------------------------------------------- | ------------------------------------------------------- |
 | $eq $ne   | equal, not equal                                              | /fruits?$filter=color $eq red                           |
@@ -154,8 +159,11 @@ Here a list of valid operations. For more informations please consult [NeDB docu
 | $not      | not operator                                                  | /fruits?$filter=$not name $regex foo                    |
 
 ## <a name="$orderby">Query parameter $orderby</a>
-You may sort the result of a query with "$orderby" parameter. The parameter may contain multiple fieldnames concatenated by commas (,). 
-Each fieldname can be followed by keywword `asc` or `desc` to define sorting directions. Ascending is default direction, so you may omit it.
+You may sort the result of a query with "$orderby" parameter.
+You can use it in [reading](#reading-documents) operations only.
+The parameter may contain multiple fieldnames concatenated by commas (,). 
+Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction. 
+Ascending is default direction, so you may omit it.
 
 Example:```/fruits?$orderby=price```
 
