@@ -148,6 +148,7 @@ Filters are set by the $filter parameter. The string will be parsed and transfor
 Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number or Date.
 
 Here is a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
+
 | operators | description                                                   | example                                                 |
 | --------- | ------------------------------------------------------------- | ------------------------------------------------------- |
 | $eq $ne   | equal, not equal                                              | /fruits?$filter=color $eq red                           |
