@@ -1,8 +1,6 @@
 # express-nedb-rest
 REST API for [NeDB](https://github.com/louischatriot/nedb) database, based on [express](http://expressjs.com/) HTTP server.
 
-__*This project has beta test status - please be prepared for errors!*__
-
 Recently i found the [NeDB](https://github.com/louischatriot/nedb)-project of Louis Chatriot.
 He developed a simple and very fast in-memory database (thank you!).
 I like it's zero administration and easy integration into nodejs application.
