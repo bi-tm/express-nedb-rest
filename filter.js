@@ -1,5 +1,3 @@
-// TODO operator IN NIN
-
 var grammar = {
     "lex": {
         "rules": [
@@ -15,39 +13,43 @@ var grammar = {
             ["\\$(gte|GTE)\\b",             "return 'GTE';"],
             ["\\$(exists|EXISTS)\\b",       "return 'EXISTS';"],
             ["\\$(regex|REGEX)\\b",         "return 'REGEX';"],
+            ["\\$(nin|NIN)\\b",             "return 'NIN';"],
+            ["\\$(in|IN)\\b",               "return 'IN';"],
             ["\\(",                         "return '(';"],
             ["\\)",                         "return ')';"],
-            ["\\d+(\\.\\d+)?\\b",           "return 'NUMBER';"],
             ["true|TRUE|false|FALSE\\b",    "return 'BOOLEAN';"],
             ["\\d{4}-\\d{2}-\\d{2}\\b",     "return 'DATE';"],
+            ["(\\d+,)+\\d+",                "return 'NUM_ARRAY';"],
+            ["(\\w+,)+\\w+",                "return 'ARRAY';"],
             ["\\w+\\b",                     "return 'WORD';"],
+            ["\\d+(\\.\\d+)?\\b",           "return 'NUMBER';"],
             ["\\'[^\\']*\\'",               "return 'LITERAL';"],
             ["\"[^\"]*\"",                  "return 'LITERAL';"],
             ["$",                           "return 'EOF';"]
-            
+
         ]
     },
 
     "operators": [
         ["left", "EXISTS"],
-        ["left", "EQ", "NE", "LT", "LTE", "GT", "GTE", "REGEX"],
+        ["left", "IN", "NIN", "EQ", "NE", "LT", "LTE", "GT", "GTE", "REGEX"],
         ["left", "AND"],
         ["left", "OR"],
         ["left", "NOT"]
     ],
 
     "bnf": {
-        "filter": [ 
+        "filter": [
             ["e EOF", "return $1;"]
         ],
-        
+
         "e": [
             ["c AND c", "$$ = new Object(); $$['$and'] = [$1,$3];"],
             ["c OR c",  "$$ = new Object(); $$['$or'] = [$1,$3];"],
-            ["NOT c",   "$$ = new Object(); $$['$not'] = $2;" ],
-            ["c",       "$$ = $1;" ]
+            ["NOT c",   "$$ = new Object(); $$['$not'] = $2;"],
+            ["c",       "$$ = $1;"]
         ],
-        
+
         "c": [
             ["l EQ r", "$$ = new Object; $$[$1] = $3;"],
             ["l NE r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$ne'] = $3;"],
@@ -55,24 +57,28 @@ var grammar = {
             ["l LTE r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$lte'] = $3;"],
             ["l GT r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$gt'] = $3;"],
             ["l GTE r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$gte'] = $3;"],
+            ["l IN r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$in'] = $3;"],
+            ["l NIN r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$nin'] = $3;"],
             ["EXISTS l", "$$ = new Object(); $$[$2] = new Object(); $$[$2]['$exists'] = true;"],
             ["l REGEX r", "$$ = new Object(); $$[$1] = new Object(); $$[$1]['$regex'] = new RegExp($3);"],
             ["( e )", "$$ = $2;"]
         ],
-        
+
         "l": [
             ["WORD", "$$=yytext;"]
         ],
-        
+
         "r": [
-            ["WORD",    "$$ = yytext;"],
-            ["NUMBER",  "$$ = Number(yytext);"],
-            ["LITERAL", "$$ = yytext.slice(1,yytext.length-1);"],
-            ["BOOLEAN", "$$ = yytext.toLowerCase() === 'true';"],
-            ["DATE",    "$$ = new Date(yytext);"]
+            ["ARRAY",     "$$ = yytext.split(',')"],
+            ["NUM_ARRAY", "$$ = yytext.split(',').map(a => Number(a));"],
+            ["WORD",      "$$ = yytext;"],
+            ["NUMBER",    "$$ = Number(yytext);"],
+            ["LITERAL",   "$$ = yytext.slice(1,yytext.length-1);"],
+            ["BOOLEAN",   "$$ = yytext.toLowerCase() === 'true';"],
+            ["DATE",      "$$ = new Date(yytext);"],
         ]
     }
-};    
+};
 
 var Parser = require("jison").Parser;
 var parser = new Parser(grammar);

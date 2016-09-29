@@ -55,15 +55,15 @@ You will get a response like:
 ]
 ```
 
-For further testing you should use a REST client (i.e. [postman](https://www.getpostman.com/) 
+For further testing you should use a REST client (i.e. [postman](https://www.getpostman.com/)
 or use my primitive test tool in path test/test.js).
 
 ## Test tool
 In filepath `test` you fill find a primitive test tool `test.js`.
 You can start it with command ```node test/test.js```.
 It creates an express HTTP server and provides a `index.html` as web frontend.
-This frontend contains a formular, where you can fill in HTTP method, url and body text. 
-You can execute the different HTTP methods (GET,POST,PUT,DELETE) and you will see the response content. 
+This frontend contains a formular, where you can fill in HTTP method, url and body text.
+You can execute the different HTTP methods (GET,POST,PUT,DELETE) and you will see the response content.
 
 ![screenshot](/test/screenshot.png)
 
@@ -110,7 +110,7 @@ Updating operations are done by HTTP PUT calls. You can update a single document
 You must provide the document in HTTP body as JSON string. You cannot change key field _id.
 The document will be completely overwritten with the new content.
 If you want to update a property without changing other fields, you have to use a special [NeDB syntax](https://github.com/louischatriot/nedb#updating-documents).
-There are operations $set, $unset, $inc and more. The JSON string in HTTP body is passed to NeDB without any checks. 
+There are operations $set, $unset, $inc and more. The JSON string in HTTP body is passed to NeDB without any checks.
 
 ```
 HTTP PUT \fruits\J1t1kMDp4PWgPfhe
@@ -118,7 +118,7 @@ HTTP PUT \fruits\J1t1kMDp4PWgPfhe
 ```
 
 You can also update multiple documents by calling a DELETE command without _id. You should define a [$filter](#$filter), otherwise all documents are changed.
-It is recommded to use special update operations (i.e. $set) to change single document fields, 
+It is recommded to use special update operations (i.e. $set) to change single document fields,
 it makes certainly no sense to overwrite all selected documents with same content.
 ```
 HTTP PUT \fruits?$filter=name $regex berry
@@ -145,7 +145,11 @@ and [deleting](#deleting-documents) (DELETE) commands.
 
 A filter consists of one or more conditions, which are linked with logical and/or operations.
 Filters are set by the $filter parameter. The string will be parsed and transformed to a NeDB filter object.
-Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number or Date.
+Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number, Date or Array.
+
+For the operators $in and $nin an array must be given as value. Currently this array cannot obtain a single value.
+Arrays are delimited by `,`. Another constraint is that an array can only contain a single type of either String of Number.
+The array `1,2,hello` will not work.
 
 Here is a list of valid operations. For more informations please consult [NeDB documentation](https://github.com/louischatriot/nedb#operators-lt-lte-gt-gte-in-nin-ne-exists-regex).
 
@@ -157,13 +161,14 @@ Here is a list of valid operations. For more informations please consult [NeDB d
 | $exists   | checks whether the document posses the property field.        | /fruits?$filter=$exists discount                        |
 | $regex    | checks whether a string is matched by the regular expression. | /fruits?filter=name $regex foo                          |
 | $and $or  | logical and/or oparator                                       | /fruits?$filter=name $eq apple $and color $eq red       |
+| $in $nin  | member of, not member of                                      | /fruits?$filter=name $in apple,banana                   |
 | $not      | not operator                                                  | /fruits?$filter=$not name $regex foo                    |
 
 ## <a name="$orderby">Query parameter $orderby</a>
 You may sort the result of a query with "$orderby" parameter.
 You can use it in [reading](#reading-documents) (GET) operations only.
-The parameter may contain multiple fieldnames concatenated by commas (,). 
-Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction. 
+The parameter may contain multiple fieldnames concatenated by commas (,).
+Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction.
 Ascending is default direction, so you may omit it.
 
 Example:  ```/fruits?$orderby=price```
