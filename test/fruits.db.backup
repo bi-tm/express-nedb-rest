@@ -1,8 +1,0 @@
-{"name":"blueberry","color":"blue","price":5.49,"_id":"J1t1kMDp4PWgPfhe"}
-{"name":"strawberry","color":"red","price":5.99,"_id":"J1t1kMDp4PWgPfhf"}
-{"name":"banana","color":"yellow","price":5.49,"discount":0.2,"_id":"K1MclG89adH0IMs9"}
-{"name":"apple","color":"red","price":2.99,"_id":"ha2HXVubOeoDscSf"}
-{"name":"melone","color":"green","price":5.29,"_id":"khayMJGa9jXg6Rez"}
-{"name":"cherry","color":"red","price":3.99,"_id":"ow8vqh46B2Oekb4U"}
-{"name":"apple","color":"green","price":3.49,"_id":"xdQXw3jM3lCI24dI"}
-{"name":"blueberry","color":"blue","price":5.49,"_id":"J1t1kMDp4PWgPfhe","discount":0.1}

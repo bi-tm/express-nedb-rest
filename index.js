@@ -12,8 +12,8 @@ function expressNedbRest() {
 
     // parse body of request
     router.use(bodyParser.json());
-    
-    // add configuration to each request 
+
+    // add configuration to each request
     router.use(function (req, res, next) {
         req.cfg = router.cfg;
         next();
@@ -26,14 +26,14 @@ function expressNedbRest() {
         if (req.cfg.validator) {
             req.cfg.validator(req, res, next);
         }
-        
+
         // sadd collection information to request object
         req.collection = collection;
         req.nedb = req.cfg.collections[collection];
-        
+
         if (!req.nedb) {
             next({ status: 404, // Bad Request
-                   message: "unknown collection " + req.collection }) ; 
+                   message: "unknown collection " + req.collection }) ;
         }
         else {
             // parse filter
@@ -44,12 +44,12 @@ function expressNedbRest() {
             catch (e) {
                 // parser error
                 next({ status: 404, // Bad Request
-                       message: "unvalid $filter " + e.message }); 
+                       message: "unvalid $filter " + e.message });
             }
         }
     });
 
-    // add object id from uri to request 
+    // add object id from uri to request
     router.param('id', function (req, res, next, id) {
         req.id = id;
         next();
@@ -93,7 +93,7 @@ function expressNedbRest() {
 
     /**
      * add a callback function, which will be called before each NeDB database call.
-     * @param {function) callback function with expressJS signatire (req, res, next) 
+     * @param {function) callback function with expressJS signatire (req, res, next)
      * @public
      */
     router.setValidator = function(f) {
@@ -115,16 +115,16 @@ function fullUrl(req) {
 }
 
 function addRestMethods(router) {
-    
+
     //--------------------------------------------------------------------------
     router.get('/', function (req, res, next) {
-        // return an array with all collection's names 
+        // return an array with all collection's names
         res.locals.json = [];
         for(var name in req.cfg.collections) {
             res.locals.json.push({
-                "name":  name, 
+                "name":  name,
                 "link":  fullUrl(req) + name
-            });    
+            });
         }
         res.locals.count = res.locals.json.length;
         next();
@@ -132,7 +132,7 @@ function addRestMethods(router) {
 
     //--------------------------------------------------------------------------
     router.get('/:collection', function (req, res, next) {
-        
+
         if (typeof(req.query.$count) == "undefined") {
             // normal query
             var query = req.nedb.find(req.$filter);
@@ -145,7 +145,7 @@ function addRestMethods(router) {
                 catch (e) {
                     // parser error
                     next({ status: 404, // Bad Request
-                           message: "unvalid $orderby " + e.message }); 
+                           message: "unvalid $orderby " + e.message });
                 }
             }
             if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
@@ -191,7 +191,7 @@ function addRestMethods(router) {
         if (!req.body || typeof(req.body) != 'object') {
             return next({ status: 400, message: 'No Request Body' }); // Bad Request
         }
-        req.nedb.insert(req.body, function (err, doc) { 
+        req.nedb.insert(req.body, function (err, doc) {
             if (err) {
                 return next(err);
             }
@@ -201,7 +201,7 @@ function addRestMethods(router) {
             next();
         });
     });
-    
+
 
     //--------------------------------------------------------------------------
     router.delete('/:collection/:id', function (req, res, next) {
@@ -214,7 +214,7 @@ function addRestMethods(router) {
             }
             else {
                 res.locals.count = count;
-                res.status(204).send("deleted entries: "+count); 
+                res.status(204).send("deleted entries: "+count);
             }
         });
     });
@@ -223,7 +223,7 @@ function addRestMethods(router) {
     //--------------------------------------------------------------------------
     router.delete('/:collection', function (req, res, next) {
         if (!req.$filter || Object.keys(req.$filter).length == 0) {
-            res.status(405).send(); // Method Not Allowed
+            return next({ status: 405, message: '$filter ist missing' });
         }
         req.nedb.remove(req.$filter, { multi: true }, function (err, count) {
             if (err) {
@@ -233,10 +233,10 @@ function addRestMethods(router) {
                 return next({status:404, message:"no document found to delete"});
             }
             res.locals.count = count;
-            res(204).send("deleted entries: "+count);
+            res.status(204).send("deleted entries: "+count);
         });
     });
-    
+
     //--------------------------------------------------------------------------
     router.put('/:collection/:id', function (req, res, next) {
         if (!req.body || typeof(req.body) != 'object') {
@@ -270,7 +270,7 @@ function addRestMethods(router) {
             res.status(204).send("updated entries: "+count);
         });
     });
-    
+
     //--------------------------------------------------------------------------
     router.patch('/:collection', function (req, res, next) {
         res.status(405).send(); // Method Not Allowed
@@ -285,7 +285,7 @@ function addRestMethods(router) {
     router.post('/:collection/:id', function (req, res, next) {
         res.status(405).send(); // Method Not Allowed
     });
-    
+
 }
 
 
