@@ -18,6 +18,7 @@ var grammar = {
             ["\\(",                         "return '(';"],
             ["\\)",                         "return ')';"],
             ["true|TRUE|false|FALSE\\b",    "return 'BOOLEAN';"],
+            ["\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|(\\+|-)\\d{2}:\\d{2})\\b",     "return 'DATETIME';"],
             ["\\d{4}-\\d{2}-\\d{2}\\b",     "return 'DATE';"],
             ["(\\d+,)+\\d+",                "return 'NUM_ARRAY';"],
             ["(\\w+,)+\\w+",                "return 'ARRAY';"],
@@ -71,11 +72,12 @@ var grammar = {
         "r": [
             ["ARRAY",     "$$ = yytext.split(',')"],
             ["NUM_ARRAY", "$$ = yytext.split(',').map(a => Number(a));"],
+            ["DATE",      "$$ = new Date(yytext);"],
+            ["DATETIME",  "$$ = new Date(yytext);"],
             ["WORD",      "$$ = yytext;"],
             ["NUMBER",    "$$ = Number(yytext);"],
             ["LITERAL",   "$$ = yytext.slice(1,yytext.length-1);"],
-            ["BOOLEAN",   "$$ = yytext.toLowerCase() === 'true';"],
-            ["DATE",      "$$ = new Date(yytext);"],
+            ["BOOLEAN",   "$$ = yytext.toLowerCase() === 'true';"]
         ]
     }
 };

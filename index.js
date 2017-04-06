@@ -4,14 +4,32 @@ var nedb = require('nedb');
 var filter = require('./filter');
 var order = require('./order');
 
-function expressNedbRest() {
+function expressNedbRest(options) {
+    options = (typeof(options) == 'object') ? options : {convertToDate:true};
+    
     var router = express.Router();
 
     // initialize configuration object (no collections yet)
     router.cfg = { collections:[] };
 
+    // define reviver function to parse date strings, if option convertToDate==true
+    var reviverFunc = null;
+    if (options.convertToDate) {
+        reviverFunc = function(key, value) {
+            // convert date string (ISO 8601) to date object
+            // i.e. "2017-04-07T18:00:00.000Z"
+            if(typeof(value)=='string' && 
+               /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|(\+|-)\d{2}:\d{2})$/.test(value)) {
+              return new Date(value);
+            }
+            else {
+                return value;
+            }    
+        };
+    }
+    
     // parse body of request
-    router.use(bodyParser.json());
+    router.use(bodyParser.json({"reviver":reviverFunc}));
 
     // add configuration to each request
     router.use(function (req, res, next) {
