@@ -33,7 +33,7 @@ var oApp = express();
 // create  NEDB datastore
 var datastore = new nedb({ filename: "test.db",  autoload: true });
 
-// create rest api router and connect it to datastote  
+// create rest api router and connect it to datastore  
 var restApi = expressNedbRest();
 restApi.addDatastore('test', datastore);
 
@@ -61,14 +61,14 @@ In filepath `test` you fill find a primitive test tool `test.js`.
 You can start it with command ```node test/test.js```.
 It creates an express HTTP server and provides a `index.html` as web frontend.
 This frontend contains a formular, where you can fill in HTTP method, url and body text.
-You can execute the different HTTP methods (GET,POST,PUT,DELETE) and you will see the response content.
+You can execute the different HTTP methods (GET, POST, PUT, DELETE) and you will see the response content.
 
 ![screenshot](/test/screenshot.png)
 
 ## API schema
 
-The module can be conneceted to multiple NeDB data storages, which are called *collections*.
-Each CRUD command is a combination of a HTTP method (GET,POST,PUT,DELETE), URL and HTTP-body.
+The module can be connected to multiple NeDB data storages, which are called *collections*.
+Each [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) command is a combination of a HTTP method (GET, POST, PUT, DELETE), URL and HTTP-body.
 The following table gives a quick overview of possible commands.
 
 | URL              | Method | Notes                                                          |
