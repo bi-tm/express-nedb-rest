@@ -169,7 +169,11 @@ The parameter may contain multiple fieldnames concatenated by commas (,).
 Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction.
 Ascending is default direction, so you may omit it.
 
-Example:  ```/fruits?$orderby=price```
+Examples:
+
+```/fruits?$orderby=price```
+
+```/fruits?$filter=color $eq red&$orderby=price```
 
 ## <a name="$count">Query parameter $count</a>
 If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set.
