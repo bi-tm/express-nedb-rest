@@ -33,7 +33,7 @@ var oApp = express();
 // create  NEDB datastore
 var datastore = new nedb({ filename: "test.db",  autoload: true });
 
-// create rest api router and connect it to datastote  
+// create rest api router and connect it to datastore  
 var restApi = expressNedbRest();
 restApi.addDatastore('test', datastore);
 
