@@ -90,7 +90,7 @@ Each [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) comma
 The following table gives a quick overview of possible commands.
 
 | URL              | Method | Notes                                                                    |
-|----------------- | ------ | ------------------------------------------------------------------------ |
+|----------------- | ------ | -----git ------------------------------------------------------------------- |
 | /                | GET    | get list of collections (= datastores)                                   |
 | /:collection     | GET    | search documents in a collection (uses query parameter $filter $orderby) |
 | /:collection/:id | GET    | retrieve a single document                                               |
@@ -191,16 +191,35 @@ Ascending is default direction, so you may omit it.
 
 Examples:
 
-```/fruits?$orderby=price```
+```HTTP GET/fruits?$orderby=price```
 
-```/fruits?$filter=color $eq red&$orderby=price```
+```HTTP GET/fruits?$filter=color $eq red&$orderby=price```
 
 ## <a name="$count">Query parameter $count</a>
 If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set.
 You can use this parameter in [reading](#reading-documents) (GET) operations only.
 The server responds with a number (no JSON object or array).
 
-Example:  ```/fruits?$filter=name $eq apple&$count```
+Example:  ```HTTP GET /fruits?$filter=name $eq apple&$count```
+
+## <a name="pagination">Query parameter $skip and $limit</a>
+If you want to fetch results in several packages, you may use pagination parameters $skip and $limit.
+They should be used together with [$orderby](#$orderby) parameter.  
+Parameter $skip sets the count of documents, which will be deleteted from the beginning of result set.  
+Parameter $limit sets maximal count of documents in the result set.  
+You can use this parameter in [reading](#reading-documents) (GET) operations only.
+
+Example:  ```HTTP GET /fruits?$filter=name $eq apple&$skip=1&$limit=2```
+
+## <a name="$single">Query parameter $single</a>
+If you read from collections with HTTP GET, the result will be allways an array of documents, 
+even if you use query parameter [$limit](#pagination)=1, or only one docment matches the [$filter](#$filter). 
+
+If you prefer to get a single object but not an array, you must use query parameter $single instead.
+The NeDB database will be queried with function ´findOne´, and you will get only one document as JSON object. 
+If your query finds no document, you will get a 404-error code, instead of an empty array.
+
+Example:  ```HTTP GET /fruits?$filter=name $eq apple&$single```
 
 ## <a name="date-object">Date Objects</a>
 There is no general specification how to define a date in JSON string. Nevertheless you want to set date-time values in documents.

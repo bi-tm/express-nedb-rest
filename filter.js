@@ -22,10 +22,11 @@ var grammar = {
             ["\\d{4}-\\d{2}-\\d{2}\\b",     "return 'DATE';"],
             ["(\\d+,)+\\d+",                "return 'NUM_ARRAY';"],
             ["(\\w+,)+\\w+",                "return 'ARRAY';"],
-            ["\\w+\\b",                     "return 'WORD';"],
             ["\\d+(\\.\\d+)?\\b",           "return 'NUMBER';"],
             ["\\'[^\\']*\\'",               "return 'LITERAL';"],
             ["\"[^\"]*\"",                  "return 'LITERAL';"],
+            ["\\.",                         "return 'DOT';"],
+            ["\\w+\\b",                     "return 'WORD';"],
             ["$",                           "return 'EOF';"]
 
         ]
@@ -66,7 +67,8 @@ var grammar = {
         ],
 
         "l": [
-            ["WORD", "$$=yytext;"]
+            ["WORD",       "$$=yytext;"],
+            ["WORD DOT l", "$$ = $1+$2+$3;"]
         ],
 
         "r": [
