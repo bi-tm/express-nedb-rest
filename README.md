@@ -33,7 +33,7 @@ var oApp = express();
 // create  NEDB datastore
 var datastore = new nedb({ filename: "test.db",  autoload: true });
 
-// create rest api router and connect it to datastote  
+// create rest api router and connect it to datastore  
 var restApi = expressNedbRest();
 restApi.addDatastore('test', datastore);
 
@@ -85,8 +85,8 @@ The router can be used as express middleware.
 
 ## API schema
 
-The module can be conneceted to multiple NeDB data storages, which are called *collections*.
-Each CRUD command is a combination of a HTTP method (GET,POST,PUT,DELETE), URL and HTTP-body.
+The module can be connected to multiple NeDB data storages, which are called *collections*.
+Each [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) command is a combination of a HTTP method (GET, POST, PUT, DELETE), URL and HTTP-body.
 The following table gives a quick overview of possible commands.
 
 | URL              | Method | Notes                                                                    |
@@ -189,7 +189,11 @@ The parameter may contain multiple fieldnames concatenated by commas (,).
 Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction.
 Ascending is default direction, so you may omit it.
 
-Example:  ```/fruits?$orderby=price```
+Examples:
+
+```/fruits?$orderby=price```
+
+```/fruits?$filter=color $eq red&$orderby=price```
 
 ## <a name="$count">Query parameter $count</a>
 If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set.
