@@ -4,17 +4,20 @@ var nedb = require('nedb');
 var filter = require('./filter');
 var order = require('./order');
 
-function expressNedbRest(options) {
-    options = (typeof(options) == 'object') ? options : {convertToDate:true};
+function expressNedbRest(cfg) {
     
     var router = express.Router();
 
-    // initialize configuration object (no collections yet)
-    router.cfg = { collections:[] };
+    // initialize configuration object
+    router.cfg = (typeof(cfg) == 'object') ? cfg : {};
+    router.cfg.collections = [];  //no collections yet
+    if (typeof(router.cfg.convertToDate) != 'boolean') {
+        router.cfg.convertToDate = true;
+    }
 
     // define reviver function to parse date strings, if option convertToDate==true
     var reviverFunc = null;
-    if (options.convertToDate) {
+    if (router.cfg.convertToDate) {
         reviverFunc = function(key, value) {
             // convert date string (ISO 8601) to date object
             // i.e. "2017-04-07T18:00:00.000Z"
@@ -45,7 +48,7 @@ function expressNedbRest(options) {
             req.cfg.validator(req, res, next);
         }
 
-        // sadd collection information to request object
+        // add collection information to request object
         req.collection = collection;
         req.nedb = req.cfg.collections[collection];
 
@@ -111,7 +114,7 @@ function expressNedbRest(options) {
 
     /**
      * add a callback function, which will be called before each NeDB database call.
-     * @param {function) callback function with expressJS signatire (req, res, next)
+     * @param {function) callback function with expressJS signature (req, res, next)
      * @public
      */
     router.setValidator = function(f) {
@@ -152,30 +155,43 @@ function addRestMethods(router) {
     router.get('/:collection', function (req, res, next) {
 
         if (typeof(req.query.$count) == "undefined") {
-            // normal query
-            var query = req.nedb.find(req.$filter);
-            // parse orderby
-            if (req.query.$orderby) {
-            try {
-                    var $order = order(req.query.$orderby);
-                    if ($order) query.sort($order);
+            if (typeof(req.query.$single) == 'undefined') {
+                // normal query
+                var query = req.nedb.find(req.$filter);
+                // parse orderby
+                if (req.query.$orderby) {
+                try {
+                        var $order = order(req.query.$orderby);
+                        if ($order) query.sort($order);
+                    }
+                    catch (e) {
+                        // parser error
+                        next({ status: 404, // Bad Request
+                               message: "unvalid $orderby " + e.message });
+                    }
                 }
-                catch (e) {
-                    // parser error
-                    next({ status: 404, // Bad Request
-                           message: "unvalid $orderby " + e.message });
-                }
+                if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
+                if (!isNaN(req.query.$limit)) query.limit(parseInt(req.query.$limit));
+                query.exec(function(err, docs) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.locals.count = docs.length;
+                    res.locals.json = docs;
+                    next();
+                });        }
+            else {
+                // find single document
+                query = req.nedb.findOne(req.$filter, function(err, doc) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.locals.count = 1;
+                    res.locals.json = doc;
+                    next();
+                });
             }
-            if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
-            if (!isNaN(req.query.$limit)) query.limit(parseInt(req.query.$limit));
-            query.exec(function(err, docs) {
-                if (err) {
-                    return next(err);
-                }
-                res.locals.count = docs.length;
-                res.locals.json = docs;
-                next();
-            });
+    
         }
         else {
             // count of documents requested
