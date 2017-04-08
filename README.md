@@ -5,7 +5,7 @@ Recently i found the [NeDB](https://github.com/louischatriot/nedb)-project of Lo
 He developed a simple and very fast in-memory database (thank you!).
 I like it's zero administration and easy integration into nodejs application.
 There is no need to start a daemon process and to communicate with it.
-Unfortunately i found no RESTful web API for this database, so here is my first try to implement one.
+Unfortunately i found no RESTful web API for this database, so i implement own by my own.
 
 My module is built on [ExpressJS](http://expressjs.com/) server framework and provides an express Router object.
 This can be integrated easily into any express application as middleware.
@@ -57,13 +57,31 @@ For further testing you should use a REST client (i.e. [postman](https://www.get
 or use my primitive test tool in path test/test.js).
 
 ## Test tool
-In filepath `test` you fill find a primitive test tool `test.js`.
+In filepath `test` you will find a test tool `test.js`.
 You can start it with command ```node test/test.js```.
-It creates an express HTTP server and provides a `index.html` as web frontend.
-This frontend contains a formular, where you can fill in HTTP method, url and body text.
-You can execute the different HTTP methods (GET, POST, PUT, DELETE) and you will see the response content.
+It creates an express HTTP server and provides an `index.html` as web frontend.
+This frontend contains a form, in which you may set HTTP method, url and body text.
+You may execute the different HTTP methods (GET,POST,PUT,DELETE) and you will see the response content.
 
 ![screenshot](/test/screenshot.png)
+
+## JavaScript module
+The command ```require('express-nedb-rest')``` supplies a constructor function.
+It creates an express [Router](http://expressjs.com/de/4x/api.html#router) object.
+The router can be used as express middleware.
+
+### Methods
+- constructor(options?)  
+  The constructor accepts an object as optional parameter.  
+  Currently there is only one option:
+  - convertToDate:boolean  
+    true (default)= if as JSON string contains a date (ISO-8601), the string will be converted JavaScript Date object  
+    Please see section [Date Objects](#date-object).
+- addDatastore(collection:string, store:nedb)  
+  Register a NeDB database for rest api. The NeDB database can be accessed under the collection name
+- setValidator(callback:function)  
+  Register a callback function which will be called as validator before each NeDB database call.  
+  The validator function should have the typical expressJS signature (req, res, next)
 
 ## API schema
 
@@ -71,25 +89,25 @@ The module can be connected to multiple NeDB data storages, which are called *co
 Each [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) command is a combination of a HTTP method (GET, POST, PUT, DELETE), URL and HTTP-body.
 The following table gives a quick overview of possible commands.
 
-| URL              | Method | Notes                                                          |
-|----------------- | ------ | -------------------------------------------------------------- |
-| /                | GET    | get list of collections (= datastores)                         |
-| /:collection     | GET    | Search in a collection (uses query parameter $filter $orderby) |
-| /:collection/:id | GET    | Retrieve a single document                                     |
-| /:collection     | POST   | Create a single document                                       |
-| /:collection/:id | PUT    | Update a single document                                       |
-| /:collection     | PUT    | Update multiple documents (uses query parameter $filter)       |
-| /:collection/:id | DELETE | Remove single  document                                        |
-| /:collection     | DELETE | Remove multiple documents (uses query parameter $filter)       |
+| URL              | Method | Notes                                                                    |
+|----------------- | ------ | ------------------------------------------------------------------------ |
+| /                | GET    | get list of collections (= datastores)                                   |
+| /:collection     | GET    | search documents in a collection (uses query parameter $filter $orderby) |
+| /:collection/:id | GET    | retrieve a single document                                               |
+| /:collection     | POST   | create a single document                                                 |
+| /:collection/:id | PUT    | update a single document                                                 |
+| /:collection     | PUT    | update multiple documents (uses query parameter $filter)                 |
+| /:collection/:id | DELETE | remove single a document                                                 |
+| /:collection     | DELETE | remove multiple documents (uses query parameter $filter)                 |
 
 ## <a name="creating-documents">Creating Documents</a>
-To create a document, use a POST call and put the document into the HTTP. You can only insert one document per call.
-Each document must have a unique key value, which is named '_id'. If you don't define an _id for document,
+To create a document, use a POST call and put the document into HTTP body. You can only insert one document per call.
+Each document must have a unique key value, which is named '_id'. If you don't define an _id,
 NeDB will generate a 16 character long string as _id. Please refer to [NeDB documentation](https://github.com/louischatriot/nedb#inserting-documents).
-On success the server will respond with status code 201, and the body will contain the created document as JSON string.
+On success the server will respond with status code 201, and the body contains the created document as JSON string.
 
 ## <a name="reading-documents">Reading Documents</a>
-Read operation are done HTTP GET calls. You may read single documents by appending the document _id to the URL.
+Read operation are done by HTTP GET calls. You can read a single document by appending the document _id to the URL.
 In this case the server will respond with the document as JSON string.
 
 ```
@@ -105,19 +123,19 @@ HTTP GET \fruits?$filter=$price $lt 3.00&$orderby=price
 
 ## <a name="updating-documents">Updating Documents</a>
 Updating operations are done by HTTP PUT calls. You can update a single document by appending the document key (_id) to URL.
-You must provide the document in HTTP body as JSON string. You cannot change key field _id.
+You must provide the document in HTTP body as JSON string. You cannot change key field (_id).
 The document will be completely overwritten with the new content.
-If you want to update a property without changing other fields, you have to use a special [NeDB syntax](https://github.com/louischatriot/nedb#updating-documents).
-There are operations $set, $unset, $inc and more. The JSON string in HTTP body is passed to NeDB without any checks.
+
+If you don't want to update every field of the document, but only change some of them, you have to use a special [NeDB syntax](https://github.com/louischatriot/nedb#updating-documents).
+There are operations $set, $unset, $inc and more, to update a field.
 
 ```
 HTTP PUT \fruits\J1t1kMDp4PWgPfhe
 { $set: { discount: 0.10 } }
 ```
 
-You can also update multiple documents by calling a DELETE command without _id. You should define a [$filter](#$filter), otherwise all documents are changed.
-It is recommded to use special update operations (i.e. $set) to change single document fields,
-it makes certainly no sense to overwrite all selected documents with same content.
+You can also update multiple documents by calling a PUT command without _id. You should define a [$filter](#$filter), otherwise all documents are changed.
+Changing multiple documents makes only sense in combination with update operations like $set. Otherwise all documents of a collection will have the same content.
 ```
 HTTP PUT \fruits?$filter=name $regex berry
 { $set: { discount: 0.10 } }
@@ -130,7 +148,7 @@ HTTP DELETE \fruits\J1t1kMDp4PWgPfhe
 ```
 
 If you omit the _id, you must define [$filter](#$filter) parameter, to specify a subset of documents.
-If you omit the $filter parameter, the server will respond with error status 405.
+Otherwise the server will respond with error status 405. This shall protect you to delete all documents by accident.
 
 ```
 HTTP DELETE \fruits?$filter=name $regex berry
@@ -144,6 +162,8 @@ and [deleting](#deleting-documents) (DELETE) commands.
 A filter consists of one or more conditions, which are linked with logical and/or operations.
 Filters are set by the $filter parameter. The string will be parsed and transformed to a NeDB filter object.
 Filters has format <fieldname> <operator> <value>. Values may be a String, Boolean, Number, Date or Array.
+
+If you compare with a date value, please define it as ISO-8601 string (i.e. 2017-04-06T08:39:44.016Z). Please refer to section "[Date Objects](#date-object)"
 
 For the operators $in and $nin an array must be given as value. Currently this array cannot obtain a single value.
 Arrays are delimited by `,`. Another constraint is that an array can only contain a single type of either String of Number.
@@ -181,3 +201,12 @@ You can use this parameter in [reading](#reading-documents) (GET) operations onl
 The server responds with a number (no JSON object or array).
 
 Example:  ```/fruits?$filter=name $eq apple&$count```
+
+## <a name="date-object">Date Objects</a>
+There is no general specification how to define a date in JSON string. Nevertheless you want to set date-time values in documents.
+As solution i use a modified JSON-parser. If you set an ISO-8601 string into document's JSON (i.e. { "date":"2017-04-06T08:39:44.016Z" } ), 
+the string is parsed to JS Date object. in NeDB the date field will be a Date object instead of String.
+
+I added this special feature in version 1.2.0. In older releases all strings were transfered to NeDB without changes.
+If you want to switch back to the old behaviour, you have to set an option when instantiating express-nedb-rest object:
+```var restApi = expressNedbRest({convertToDate:false});```

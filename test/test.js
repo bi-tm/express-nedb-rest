@@ -15,6 +15,7 @@ oApp.use('/spin.gif', express.static('spin.gif'));
 var restApi = expressNedbRest();
 restApi.addDatastore('fruits',  new nedb({ filename: "fruits.db",  autoload: true }));
 restApi.addDatastore('animals', new nedb({ filename: "animals.db", autoload: true }));
+restApi.addDatastore('dates',   new nedb({ filename: "dates.db",   autoload: true }));
 
 // connect /rest path to REST service
 oApp.use('/rest', restApi);
