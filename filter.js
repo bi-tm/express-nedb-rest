@@ -26,7 +26,7 @@ var grammar = {
             ["\\'[^\\']*\\'",               "return 'LITERAL';"],
             ["\"[^\"]*\"",                  "return 'LITERAL';"],
             ["\\.",                         "return 'DOT';"],
-            ["\\w+\\b",                     "return 'WORD';"],
+            ["\\w\\S+(\\b|%)",              "return 'WORD';"],
             ["$",                           "return 'EOF';"]
 
         ]
@@ -76,10 +76,10 @@ var grammar = {
             ["NUM_ARRAY", "$$ = yytext.split(',').map(a => Number(a));"],
             ["DATE",      "$$ = new Date(yytext);"],
             ["DATETIME",  "$$ = new Date(yytext);"],
-            ["WORD",      "$$ = yytext;"],
             ["NUMBER",    "$$ = Number(yytext);"],
             ["LITERAL",   "$$ = yytext.slice(1,yytext.length-1);"],
-            ["BOOLEAN",   "$$ = yytext.toLowerCase() === 'true';"]
+            ["BOOLEAN",   "$$ = yytext.toLowerCase() === 'true';"],
+            ["WORD",      "$$ = yytext;"]
         ]
     }
 };

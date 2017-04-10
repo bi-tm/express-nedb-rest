@@ -64,7 +64,7 @@ function expressNedbRest(cfg) {
             }
             catch (e) {
                 // parser error
-                next({ status: 404, // Bad Request
+                next({ status: 400, // Bad Request
                        message: "unvalid $filter " + e.message });
             }
         }
@@ -132,7 +132,7 @@ function expressNedbRest(cfg) {
 
 
 function fullUrl(req) {
-    return req.protocol + '://' + req.get('host') + req.originalUrl
+    return req.protocol + '://' + req.get('host') + req.originalUrl;
 }
 
 function addRestMethods(router) {
@@ -166,7 +166,7 @@ function addRestMethods(router) {
                     }
                     catch (e) {
                         // parser error
-                        next({ status: 404, // Bad Request
+                        next({ status: 400, // Bad Request
                                message: "unvalid $orderby " + e.message });
                     }
                 }
@@ -186,9 +186,15 @@ function addRestMethods(router) {
                     if (err) {
                         return next(err);
                     }
-                    res.locals.count = 1;
-                    res.locals.json = doc;
-                    next();
+                    if (doc) {
+                        res.locals.count = 1;
+                        res.locals.json = doc;
+                        next();
+                    }
+                    else {
+                        next({ status: 404, // Not found
+                               message: "document not found" });
+                    }
                 });
             }
     

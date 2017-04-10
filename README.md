@@ -90,7 +90,7 @@ Each [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) comma
 The following table gives a quick overview of possible commands.
 
 | URL              | Method | Notes                                                                    |
-|----------------- | ------ | -----git ------------------------------------------------------------------- |
+|----------------- | ------ | ------------------------------------------------------------------------ |
 | /                | GET    | get list of collections (= datastores)                                   |
 | /:collection     | GET    | search documents in a collection (uses query parameter $filter $orderby) |
 | /:collection/:id | GET    | retrieve a single document                                               |
