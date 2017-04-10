@@ -61,7 +61,7 @@ In filepath `test` you will find a test tool `test.js`.
 You can start it with command ```node test/test.js```.
 It creates an express HTTP server and provides an `index.html` as web frontend.
 This frontend contains a form, in which you may set HTTP method, url and body text.
-You may execute the different HTTP methods (GET,POST,PUT,DELETE) and you will see the response content.
+You may execute the different HTTP methods (GET, POST, PUT, DELETE) and you will see the response content.
 
 ![screenshot](/test/screenshot.png)
 
@@ -75,7 +75,7 @@ The router can be used as express middleware.
   The constructor accepts an object as optional parameter.  
   Currently there is only one option:
   - convertToDate:boolean  
-    true (default)= if as JSON string contains a date (ISO-8601), the string will be converted JavaScript Date object  
+    true (default)= if as JSON string contains a date ([ISO-8601](https://en.wikipedia.org/wiki/ISO_8601)), the string will be converted JavaScript Date object
     Please see section [Date Objects](#date-object).
 - addDatastore(collection:string, store:nedb)  
   Register a NeDB database for rest api. The NeDB database can be accessed under the collection name
@@ -186,14 +186,14 @@ Here is a list of valid operations. For more informations please consult [NeDB d
 You may sort the result of a query with "$orderby" parameter.
 You can use it in [reading](#reading-documents) (GET) operations only.
 The parameter may contain multiple fieldnames concatenated by commas (,).
-Each fieldname can be followed by keywword `asc` or `desc` to define sorting direction.
+Each fieldname can be followed by keyword `asc` or `desc` to define sorting direction.
 Ascending is default direction, so you may omit it.
 
 Examples:
 
-```HTTP GET/fruits?$orderby=price```
+```HTTP GET /fruits?$orderby=price```
 
-```HTTP GET/fruits?$filter=color $eq red&$orderby=price```
+```HTTP GET /fruits?$filter=color $eq red&$orderby=price```
 
 ## <a name="$count">Query parameter $count</a>
 If you append $count parameter to a query, the server returns the number of of matching documents instead of a result set.
