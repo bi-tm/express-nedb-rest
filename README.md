@@ -90,7 +90,7 @@ Each [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) comma
 The following table gives a quick overview of possible commands.
 
 | URL              | Method | Notes                                                                    |
-|----------------- | ------ | -----git ------------------------------------------------------------------- |
+|----------------- | ------ | ------------------------------------------------------------------------ |
 | /                | GET    | get list of collections (= datastores)                                   |
 | /:collection     | GET    | search documents in a collection (uses query parameter $filter $orderby) |
 | /:collection/:id | GET    | retrieve a single document                                               |
@@ -111,14 +111,14 @@ Read operation are done by HTTP GET calls. You can read a single document by app
 In this case the server will respond with the document as JSON string.
 
 ```
-HTTP GET \fruits\J1t1kMDp4PWgPfhe
+HTTP GET /fruits/J1t1kMDp4PWgPfhe
 ```
 
 You can also query multiple documents and set a [$filter](#$filter) as parameter. In that case the response contains an array of document objects (JSON formatted).
 You may also get an empty array, if no document matches the filter. The result can be sorted with parameter [$orderby](#$orderby)
 
 ```
-HTTP GET \fruits?$filter=$price $lt 3.00&$orderby=price
+HTTP GET /fruits?$filter=$price $lt 3.00&$orderby=price
 ```
 
 ## <a name="updating-documents">Updating Documents</a>
@@ -130,28 +130,28 @@ If you don't want to update every field of the document, but only change some of
 There are operations $set, $unset, $inc and more, to update a field.
 
 ```
-HTTP PUT \fruits\J1t1kMDp4PWgPfhe
+HTTP PUT /fruits/J1t1kMDp4PWgPfhe
 { $set: { discount: 0.10 } }
 ```
 
 You can also update multiple documents by calling a PUT command without _id. You should define a [$filter](#$filter), otherwise all documents are changed.
 Changing multiple documents makes only sense in combination with update operations like $set. Otherwise all documents of a collection will have the same content.
 ```
-HTTP PUT \fruits?$filter=name $regex berry
+HTTP PUT /fruits?$filter=name $regex berry
 { $set: { discount: 0.10 } }
 ```
 
 ## <a name="deleting-documents">Deleting Documents</a>
 Documents can be deleted by HTTP DELETE calls. You can delete a single document by appending the document key (_id) to the URL.
 ```
-HTTP DELETE \fruits\J1t1kMDp4PWgPfhe
+HTTP DELETE /fruits/J1t1kMDp4PWgPfhe
 ```
 
 If you omit the _id, you must define [$filter](#$filter) parameter, to specify a subset of documents.
 Otherwise the server will respond with error status 405. This shall protect you to delete all documents by accident.
 
 ```
-HTTP DELETE \fruits?$filter=name $regex berry
+HTTP DELETE /fruits?$filter=name $regex berry
 ```
 
 ## <a name="$filter">Query parameter $filter</a>
@@ -212,7 +212,7 @@ You can use this parameter in [reading](#reading-documents) (GET) operations onl
 Example:  ```HTTP GET /fruits?$filter=name $eq apple&$skip=1&$limit=2```
 
 ## <a name="$single">Query parameter $single</a>
-If you read from collections with HTTP GET, the result will be allways an array of documents, 
+If you read from collections with HTTP GET, the result will be always an array of documents, 
 even if you use query parameter [$limit](#pagination)=1, or only one docment matches the [$filter](#$filter). 
 
 If you prefer to get a single object but not an array, you must use query parameter $single instead.
@@ -224,7 +224,7 @@ Example:  ```HTTP GET /fruits?$filter=name $eq apple&$single```
 ## <a name="date-object">Date Objects</a>
 There is no general specification how to define a date in JSON string. Nevertheless you want to set date-time values in documents.
 As solution i use a modified JSON-parser. If you set an ISO-8601 string into document's JSON (i.e. { "date":"2017-04-06T08:39:44.016Z" } ), 
-the string is parsed to JS Date object. in NeDB the date field will be a Date object instead of String.
+the string is parsed to JS Date object. In NeDB the date field will be a Date object instead of String.
 
 I added this special feature in version 1.2.0. In older releases all strings were transfered to NeDB without changes.
 If you want to switch back to the old behaviour, you have to set an option when instantiating express-nedb-rest object:
