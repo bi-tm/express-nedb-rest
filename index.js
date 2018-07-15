@@ -5,7 +5,7 @@ var filter = require('./filter');
 var order = require('./order');
 
 function expressNedbRest(cfg) {
-    
+
     var router = express.Router();
 
     // initialize configuration object
@@ -21,16 +21,16 @@ function expressNedbRest(cfg) {
         reviverFunc = function(key, value) {
             // convert date string (ISO 8601) to date object
             // i.e. "2017-04-07T18:00:00.000Z"
-            if(typeof(value)=='string' && 
+            if(typeof(value)=='string' &&
                /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|(\+|-)\d{2}:\d{2})$/.test(value)) {
               return new Date(value);
             }
             else {
                 return value;
-            }    
+            }
         };
     }
-    
+
     // parse body of request
     router.use(bodyParser.json({"reviver":reviverFunc}));
 
@@ -132,7 +132,7 @@ function expressNedbRest(cfg) {
 
 
 function fullUrl(req) {
-    return req.protocol + '://' + req.get('host') + req.originalUrl;
+    return req.protocol + '://' + req.get('host') + req.originalUrl + (req.originalUrl.endsWith('/') ? '' : '/');
 }
 
 function addRestMethods(router) {
@@ -197,7 +197,7 @@ function addRestMethods(router) {
                     }
                 });
             }
-    
+
         }
         else {
             // count of documents requested
@@ -235,7 +235,7 @@ function addRestMethods(router) {
             if (err) {
                 return next(err);
             }
-            res.append('Location', fullUrl(req) + '/' + doc._id);
+            res.append('Location', fullUrl(req) + doc._id);
             res.status(201); // Created
             res.locals.json = doc;
             next();
