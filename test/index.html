@@ -47,10 +47,10 @@
                 };
                 r.setRequestHeader("Content-type", "application/json");
                 r.send(form.request.value);
-                                
+
                 return false;
             }
-            
+
             function sample(verb, url, data) {
                 var form = document.forms[0];
                 form.verb.value = verb;
@@ -60,7 +60,7 @@
             }
         </script>
     </head>
-    
+
     <body>
         <h2><a href="https://github.com/bi-tm/express-nedb-rest">express-nedb-rest</a></h2>
         <form onsubmit="javascript:return rest(this)">
@@ -93,7 +93,8 @@
                 <ol>
                 <li><a href="javascript:sample('GET', '')">list of collections (GET /)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits')">read fruit collection (GET /fruits)</a></li>
-                <li><a href="javascript:sample('GET', 'fruits?$filter=color $eq red')">reads all red fruits (GET /fruits?$filter=color $eq red)</a></li>
+                <li><a href="javascript:sample('GET', 'fruits?$filter=color $eq red')">filter: reads all red fruits (GET /fruits?$filter=color $eq red)</a></li>
+                <li><a href="javascript:sample('GET', 'fruits?$select=name')">projetion: reads only some fields of fruits (GET /fruits?$select=name)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits?$filter=$exists discount')">get fruits with discount (GET /fruits?$filter=$exists discount)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits?$orderby=price desc')">sort fruits by descending price(GET /fruits?$orderby=price desc)</a></li>
                 <li><a href="javascript:sample('GET', 'fruits?$filter=name $eq apple&$count')">count apple documents (GET /fruits?$filter=name $eq apple&$count)</a></li>

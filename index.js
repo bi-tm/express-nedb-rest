@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require("body-parser");
 var nedb = require('nedb');
 var filter = require('./filter');
+var select = require('./select');
 var order = require('./order');
 
 function expressNedbRest(cfg) {
@@ -60,13 +61,24 @@ function expressNedbRest(cfg) {
             // parse filter
             try {
                 req.$filter = filter(req.query.$filter);
-                next();
             }
             catch (e) {
                 // parser error
                 next({ status: 400, // Bad Request
                        message: "unvalid $filter " + e.message });
+                return;
             }
+            // parse selected fields
+            try {
+                req.$select = select(req.query.$select);
+            }
+            catch (e) {
+                // parser error
+                next({ status: 400, // Bad Request
+                       message: "unvalid $filter " + e.message });
+                return;
+            }
+            next();
         }
     });
 
@@ -172,6 +184,7 @@ function addRestMethods(router) {
                 }
                 if (!isNaN(req.query.$skip)) query.skip(parseInt(req.query.$skip));
                 if (!isNaN(req.query.$limit)) query.limit(parseInt(req.query.$limit));
+                if (req.$select) query.projection(req.$select);
                 query.exec(function(err, docs) {
                     if (err) {
                         return next(err);
@@ -182,7 +195,9 @@ function addRestMethods(router) {
                 });        }
             else {
                 // find single document
-                query = req.nedb.findOne(req.$filter, function(err, doc) {
+                query = req.nedb.findOne(req.$filter);
+                if (req.$select) query.projection(req.$select);
+                query.exec(function(err, doc) {
                     if (err) {
                         return next(err);
                     }
@@ -213,7 +228,9 @@ function addRestMethods(router) {
 
     //--------------------------------------------------------------------------
     router.get('/:collection/:id', function (req, res, next) {
-        req.nedb.findOne({ _id: req.id }, function (err, doc) {
+        var query = req.nedb.findOne({ _id: req.id });
+        if (req.$select) query.projection(req.$select);
+        query.exec(function (err, doc) {
             if (err) {
                 return next(err);
             }
