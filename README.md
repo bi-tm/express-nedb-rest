@@ -5,7 +5,7 @@ Recently i found the [NeDB](https://github.com/louischatriot/nedb)-project of Lo
 He developed a simple and very fast in-memory database (thank you!).
 I like it's zero administration and easy integration into nodejs application.
 There is no need to start a daemon process and to communicate with it.
-Unfortunately i found no RESTful web API for this database, so i implement own by my own.
+Unfortunately i found no RESTful web API for this database, so i implemented it by my own.
 
 My module is built on [ExpressJS](http://expressjs.com/) server framework and provides an express Router object.
 This can be integrated easily into any express application as middleware.
