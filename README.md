@@ -118,7 +118,7 @@ You can also query multiple documents and set a [$filter](#$filter) as parameter
 You may also get an empty array, if no document matches the filter. The result can be sorted with parameter [$orderby](#$orderby)
 
 ```
-HTTP GET /fruits?$filter=$price $lt 3.00&$orderby=price
+HTTP GET /fruits?$filter=price $lt 3.00&$orderby=price
 ```
 
 If you do not need all fields of the dataset, you can define a projection with parameter [$select](#select)
