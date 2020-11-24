@@ -299,7 +299,11 @@ function addRestMethods(router) {
         if (!req.body || typeof(req.body) != 'object') {
             return next({ status: 400, message: 'No Request Body' }); // Bad Request
         }
-        req.nedb.update({_id:req.id}, req.body, {multi:false}, function (err, count) {
+        var options = {
+            multi:false,
+            upsert: typeof(req.query.$upsert) !== 'undefined'
+        };
+        req.nedb.update({_id:req.id}, req.body, options, function (err, count) {
             if (err) {
                 return next(err);
             }

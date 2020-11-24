@@ -97,7 +97,7 @@ The following table gives a quick overview of possible commands.
 | /:collection     | POST   | create a single document                                                 |
 | /:collection/:id | PUT    | update a single document                                                 |
 | /:collection     | PUT    | update multiple documents (uses query parameter $filter)                 |
-| /:collection/:id | DELETE | remove single a document                                                 |
+| /:collection/:id | DELETE | remove a single document                                                 |
 | /:collection     | DELETE | remove multiple documents (uses query parameter $filter)                 |
 
 ## <a name="creating-documents">Creating Documents</a>
@@ -132,19 +132,25 @@ Updating operations are done by HTTP PUT calls. You can update a single document
 You must provide the document in HTTP body as JSON string. You cannot change key field (_id).
 The document will be completely overwritten with the new content.
 
+If the document with the given does not exists, you will get an error. If you use the `$upsert` parameter, you can create the missing document.
+```
+HTTP PUT /fruits/24mymSWwthq6t2B5?$upsert
+{"name":"apple","color":"yellow","price":2.49,"_id":"24mymSWwthq6t2B5"}
+```
+
 If you don't want to update every field of the document, but only change some of them, you have to use a special [NeDB syntax](https://github.com/louischatriot/nedb#updating-documents).
 There are operations $set, $unset, $inc and more, to update a field.
 
 ```
 HTTP PUT /fruits/J1t1kMDp4PWgPfhe
-{ $set: { discount: 0.10 } }
+{ "$set": { "discount": 0.10 } }
 ```
 
 You can also update multiple documents by calling a PUT command without _id. You should define a [$filter](#$filter), otherwise all documents are changed.
 Changing multiple documents makes only sense in combination with update operations like $set. Otherwise all documents of a collection will have the same content.
 ```
 HTTP PUT /fruits?$filter=name $regex berry
-{ $set: { discount: 0.10 } }
+{ "$set": { "discount": 0.10 } }
 ```
 
 ## <a name="deleting-documents">Deleting Documents</a>
