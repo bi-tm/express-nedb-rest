@@ -44,11 +44,6 @@ function expressNedbRest(cfg) {
     // find datastore of collection and add it to request object
     router.param('collection', function collectionParam(req, res, next, collection) {
 
-        // call validator function, if configured
-        if (req.cfg.validator) {
-            req.cfg.validator(req, res, next);
-        }
-
         // add collection information to request object
         req.collection = collection;
         req.nedb = req.cfg.collections[collection];
@@ -58,6 +53,11 @@ function expressNedbRest(cfg) {
                    message: "unknown collection " + req.collection }) ;
         }
         else {
+            // call validator function, if configured
+            if (req.cfg.validator) {
+                req.cfg.validator(req, res, next);
+            }
+
             // parse filter
             try {
                 req.$filter = filter(req.query.$filter);
